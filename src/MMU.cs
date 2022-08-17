@@ -7,7 +7,7 @@ namespace GameGirl
 
     public MMU()
     {
-      memoryBus = new byte[Utils.MemorySize];
+      memoryBus = new byte[Utils.MEMORY_SIZE];
     }
 
     public void WriteByte(ushort address, byte value)
