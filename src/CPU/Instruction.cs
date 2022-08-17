@@ -6,9 +6,9 @@ namespace GameGirl
   {
     public string Name { get; }
     public byte Opcode { get; }
-    public Action<byte> Handler { get; }
+    public Action Handler { get; }
 
-    public Instruction(string name, byte opcode, Action<byte> handler)
+    public Instruction(string name, byte opcode, Action handler)
     {
       Name = name;
       Opcode = opcode;

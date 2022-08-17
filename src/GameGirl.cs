@@ -12,12 +12,14 @@ namespace GameGirl
     {
       Init();
       LoadRom("roms/tetris.gb");
+
+      cpu.RunThroughRomOpcodes();
     }
 
     private void Init()
     {
       mmu = new MMU();
-      cpu = new CPU();
+      cpu = new CPU(mmu);
     }
 
     private void LoadRom(string filePath)

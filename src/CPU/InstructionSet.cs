@@ -1,3 +1,5 @@
+using Exceptions;
+
 namespace GameGirl
 {
   public class InstructionSet
@@ -16,161 +18,42 @@ namespace GameGirl
     {
       instructions = new Instruction[256];
 
-      //8-bit arithmetic/logic instructions
-      instructions[0x80] = new Instruction("add A a", 0x80, (value) => Add(value));
+      instructions[0x80] = new Instruction("add A b", 0x80, () => Add(registers.B));
+      instructions[0x81] = new Instruction("add A c", 0x81, () => Add(registers.C));
+      instructions[0x82] = new Instruction("add A d", 0x82, () => Add(registers.D));
+      instructions[0x83] = new Instruction("add A e", 0x83, () => Add(registers.E));
+      instructions[0x84] = new Instruction("add A h", 0x84, () => Add(registers.H));
+      instructions[0x85] = new Instruction("add A l", 0x85, () => Add(registers.L));
+      instructions[0x86] = new Instruction("add A [hl]", 0x86, () => Add(registers.HL));
+      instructions[0x87] = new Instruction("add A a", 0x87, () => Add(registers.A));
+      instructions[0x88] = new Instruction("adc A b", 0x88, () => Adc(registers.B));
+      instructions[0x89] = new Instruction("adc A c", 0x89, () => Adc(registers.C));
+      instructions[0x8A] = new Instruction("adc A d", 0x8A, () => Adc(registers.D));
+      instructions[0x8B] = new Instruction("adc A e", 0x8B, () => Adc(registers.E));
+      instructions[0x8C] = new Instruction("adc A h", 0x8C, () => Adc(registers.H));
+      instructions[0x8D] = new Instruction("adc A l", 0x8D, () => Adc(registers.L));
+      instructions[0x8E] = new Instruction("adc A [hl]", 0x8E, () => Adc(registers.HL));
+      instructions[0x8F] = new Instruction("adc A a", 0x8F, () => Adc(registers.A));
+
+      instructions[0x90] = new Instruction("sub A b", 0x90, () => Sub(registers.B));
+      instructions[0x91] = new Instruction("sub A c", 0x91, () => Sub(registers.C));
+      instructions[0x92] = new Instruction("sub A d", 0x92, () => Sub(registers.D));
+      instructions[0x93] = new Instruction("sub A e", 0x93, () => Sub(registers.E));
+      instructions[0x94] = new Instruction("sub A h", 0x94, () => Sub(registers.H));
+      instructions[0x95] = new Instruction("sub A l", 0x95, () => Sub(registers.L));
+      instructions[0x96] = new Instruction("sub A [hl]", 0x96, () => Sub(registers.HL));
+      instructions[0x97] = new Instruction("sub A a", 0x97, () => Sub(registers.A));
     }
 
-    #region 0x8X Opcodes
-
-    //0x80
-    public void Add_A_b()
+    public void RunInstruction(byte opcode)
     {
-      Add(registers.B);
+      Instruction instruction = instructions[opcode];
+
+      if (instruction == null) throw new UnknownOpcodeException(opcode);
+      else if (instruction.Handler == null) throw new UnknownOpcodeException(instruction);
+
+      instruction.Handler.Invoke();
     }
-
-    //0x81
-    public void Add_A_c()
-    {
-      Add(registers.C);
-    }
-
-    //0x82
-    public void Add_A_d()
-    {
-      Add(registers.D);
-    }
-
-    //0x83
-    public void Add_A_e()
-    {
-      Add(registers.E);
-    }
-
-    //0x84
-    public void Add_A_h()
-    {
-      Add(registers.H);
-    }
-
-    //0x85
-    public void Add_A_l()
-    {
-      Add(registers.L);
-    }
-
-    //0x86
-    public void Add_A_hl()
-    {
-      Add(registers.HL);
-    }
-
-    //0x87
-    public void Add_A_a()
-    {
-      Add(registers.A);
-    }
-
-    //0x88
-    public void Adc_A_b()
-    {
-      Adc(registers.B);
-    }
-
-    //0x89
-    public void Adc_A_c()
-    {
-      Adc(registers.C);
-    }
-
-    //0x8A
-    public void Adc_A_d()
-    {
-      Adc(registers.D);
-    }
-
-    //0x8B
-    public void Adc_A_e()
-    {
-      Adc(registers.E);
-    }
-
-    //0x8C
-    public void Adc_A_h()
-    {
-      Adc(registers.H);
-    }
-
-    //0x8D
-    public void Adc_A_l()
-    {
-      Adc(registers.L);
-    }
-
-    //0x8E
-    public void Adc_A_hl()
-    {
-      Adc(registers.HL);
-    }
-
-    //0x8F
-    public void Adc_A_a()
-    {
-      Adc(registers.A);
-    }
-
-    #endregion
-
-    #region 0x9X opcodes
-
-    //0x90
-    public void Sub_A_b()
-    {
-      Sub(registers.B);
-    }
-
-    //0x91
-    public void Sub_A_c()
-    {
-      Sub(registers.C);
-    }
-
-    //0x92
-    public void Sub_A_d()
-    {
-      Sub(registers.D);
-    }
-
-    //0x93
-    public void Sub_A_e()
-    {
-      Sub(registers.E);
-    }
-
-    //0x94
-    public void Sub_A_h()
-    {
-      Sub(registers.H);
-    }
-
-    //0x95
-    public void Sub_A_l()
-    {
-      Sub(registers.L);
-    }
-
-    //0x96
-    public void Sub_A_hl()
-    {
-      Sub(registers.HL);
-    }
-
-    //0x97
-    public void Sub_A_a()
-    {
-      Sub(registers.A);
-    }
-
-    #endregion
 
     // Used by opcodes 0x80 to 0x85 and 0x87
     private void Add(byte value)

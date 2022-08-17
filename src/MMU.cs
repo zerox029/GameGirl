@@ -1,3 +1,5 @@
+using System;
+
 namespace GameGirl
 {
   //Temporary simple replacement for the actual mmu
@@ -15,6 +17,14 @@ namespace GameGirl
       if (address < 0 || address > 0xFFFF) return;
 
       memoryBus[address] = value;
+    }
+
+    public byte[] GetRom()
+    {
+      byte[] rom = new byte[0x8000];
+      Array.Copy(memoryBus, 0, rom, 0, 0x8000);
+
+      return rom;
     }
   }
 }

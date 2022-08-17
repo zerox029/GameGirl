@@ -7,44 +7,35 @@ namespace GameGirl
     Registers registers;
     InstructionSet instructionSet;
 
-    public CPU()
+    MMU mmu;
+
+    public CPU(MMU mmu)
     {
       this.registers = new Registers();
       this.instructionSet = new InstructionSet(registers);
+      this.mmu = mmu;
+
+      RunThroughRomOpcodes();
     }
 
-    public void decodeAndRunOpdcode()
+    //For testing purposes, run through each opcode one by one
+    public void RunThroughRomOpcodes()
     {
-      //Ugly, replace with an array of instructions
-      switch (getCurrentOpcode())
+      foreach (byte b in mmu.GetRom())
       {
-        case 0x80:
-          instructionSet.Add_A_b();
-          break;
-        case 0x81:
-          instructionSet.Add_A_c();
-          break;
-        case 0x82:
-          instructionSet.Add_A_d();
-          break;
-        case 0x83:
-          instructionSet.Add_A_e();
-          break;
-        case 0x84:
-          instructionSet.Add_A_h();
-          break;
-        case 0x85:
-          instructionSet.Add_A_l();
-          break;
+        Console.WriteLine("Executing opcode {0:X}", b);
 
-        default:
-          break;
+        try
+        {
+          instructionSet.RunInstruction(b);
+        }
+        catch (Exception exception)
+        {
+          Console.Error.WriteLine(exception.Message);
+
+          return;
+        }
       }
-    }
-
-    private byte getCurrentOpcode()
-    {
-      return 0x80;
     }
   }
 }
