@@ -15,6 +15,7 @@ namespace GameGirl
 
     public void decodeAndRunOpdcode()
     {
+      //Ugly, replace with an array of instructions
       switch (getCurrentOpcode())
       {
         case 0x80:
