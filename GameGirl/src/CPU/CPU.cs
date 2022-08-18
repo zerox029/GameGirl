@@ -2,7 +2,7 @@ using System;
 
 namespace GameGirl
 {
-  class CPU
+  public class CPU
   {
     Registers registers;
     InstructionSet instructionSet;

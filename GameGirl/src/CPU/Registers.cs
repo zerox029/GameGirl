@@ -1,6 +1,6 @@
 namespace GameGirl
 {
-  public struct Registers
+  public class Registers
   {
     public byte A { get; set; }
     public byte B { get; set; }

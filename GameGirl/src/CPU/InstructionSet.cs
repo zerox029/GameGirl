@@ -17,7 +17,7 @@ namespace GameGirl
       GenerateInstructionSet();
     }
 
-    unsafe private void GenerateInstructionSet()
+    private void GenerateInstructionSet()
     {
       instructions = new Instruction[256];
 
@@ -33,7 +33,8 @@ namespace GameGirl
       instructions[0x43] = new Instruction("LD B, E", 0x43, 1, (value) => registers.B = registers.E);
       instructions[0x44] = new Instruction("LD B, H", 0x44, 1, (value) => registers.B = registers.H);
       instructions[0x45] = new Instruction("LD B, L", 0x45, 1, (value) => registers.B = registers.L);
-      instructions[0x46] = new Instruction("LD B, [HL]", 0x26, 1, (value) => registers.B = mmu.GetByte(registers.HL));
+      instructions[0x46] = new Instruction("LD B, [HL]", 0x46, 1, (value) => registers.B = mmu.GetByte(registers.HL));
+      instructions[0x47] = new Instruction("LD B, A", 0x47, 1, (value) => registers.B = registers.A);
 
       instructions[0x80] = new Instruction("add A b", 0x80, 1, (value) => ADD(registers.B));
       instructions[0x81] = new Instruction("add A c", 0x81, 1, (value) => ADD(registers.C));
@@ -73,6 +74,16 @@ namespace GameGirl
     public byte GetInstructionLength(byte opcode)
     {
       return instructions[opcode].Length;
+    }
+
+    public void RunInstruction(byte opcode)
+    {
+      Instruction instruction = instructions[opcode];
+
+      if (instruction == null) throw new UnknownOpcodeException(opcode);
+      else if (instruction.Handler == null) throw new UnknownOpcodeException(instruction);
+
+      instruction.Handler.Invoke(0);
     }
 
     public void RunInstruction(byte opcode, ushort argument)
@@ -253,7 +264,9 @@ namespace GameGirl
 
     private void CPL()
     {
-      registers.A = (byte)~registers.A;
+      var complement = (byte)~registers.A;
+      registers.A = complement;
+      Console.WriteLine(registers.A);
     }
 
     private void CCF()
