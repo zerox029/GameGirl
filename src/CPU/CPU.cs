@@ -12,7 +12,7 @@ namespace GameGirl
     public CPU(MMU mmu)
     {
       this.registers = new Registers();
-      this.instructionSet = new InstructionSet(registers);
+      this.instructionSet = new InstructionSet(registers, mmu);
       this.mmu = mmu;
 
       RunThroughRomOpcodes();
@@ -27,7 +27,7 @@ namespace GameGirl
 
         try
         {
-          instructionSet.RunInstruction(b);
+          instructionSet.RunInstruction(b, 0);
         }
         catch (Exception exception)
         {

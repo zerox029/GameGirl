@@ -6,13 +6,15 @@ namespace GameGirl
   {
     public string Name { get; }
     public byte Opcode { get; }
-    public Action Handler { get; }
+    public byte Length { get; }
+    public Action<ushort> Handler { get; }
 
-    public Instruction(string name, byte opcode, Action handler)
+    public Instruction(string name, byte opcode, byte length, Action<ushort> handler)
     {
       Name = name;
       Opcode = opcode;
-      handler = Handler;
+      Length = length;
+      Handler = handler;
     }
   }
 }

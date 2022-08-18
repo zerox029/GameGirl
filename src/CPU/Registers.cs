@@ -11,8 +11,8 @@ namespace GameGirl
     public byte H { get; set; }
     public byte L { get; set; }
 
-    public byte SP; //Stack Pointer
-    public byte PC; // Program Counter
+    public ushort SP; //Stack Pointer
+    public ushort PC; // Program Counter
 
     public ushort AF
     {

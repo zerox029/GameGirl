@@ -3,7 +3,7 @@ using System;
 namespace GameGirl
 {
   //Temporary simple replacement for the actual mmu
-  class MMU
+  public class MMU
   {
     private byte[] memoryBus;
 
@@ -17,6 +17,11 @@ namespace GameGirl
       if (address < 0 || address > 0xFFFF) return;
 
       memoryBus[address] = value;
+    }
+
+    public byte GetByte(ushort address)
+    {
+      return memoryBus[address];
     }
 
     public byte[] GetRom()
