@@ -27,6 +27,26 @@ namespace GameGirlTest
 
       //THEN
       Assert.AreEqual(0b11110000, registers.A);
+      Assert.IsTrue(registers.GetFlag(Flag.SUBSTRACTION));
+      Assert.IsTrue(registers.GetFlag(Flag.HALF_CARRY));
+    }
+
+    [TestMethod]
+    public void TestInstruction_0x37()
+    {
+      //GIVEN
+      registers = new Registers();
+      mmu = new MMU();
+
+      instructionSet = new InstructionSet(registers, mmu);
+
+      //WHEN
+      instructionSet.RunInstruction(0x37);
+
+      //THEN
+      Assert.IsTrue(registers.GetFlag(Flag.CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
+      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
     }
 
     [TestMethod]
@@ -45,6 +65,8 @@ namespace GameGirlTest
 
       //THEN
       Assert.IsFalse(registers.GetFlag(Flag.CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
+      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
     }
 
     [TestMethod]

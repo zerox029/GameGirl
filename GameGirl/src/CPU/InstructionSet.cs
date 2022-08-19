@@ -25,6 +25,7 @@ namespace GameGirl
 
       instructions[0x2F] = new Instruction("CPL", 0x2F, 1, (value) => CPL());
 
+      instructions[0x37] = new Instruction("SCF", 0x37, 1, (value) => SCF());
       instructions[0x3F] = new Instruction("CCF", 0x3F, 1, (value) => CCF());
 
       instructions[0x40] = new Instruction("LD B, B", 0x40, 1, (value) => registers.B = registers.B);
@@ -325,19 +326,23 @@ namespace GameGirl
     {
       var complement = (byte)~registers.A;
       registers.A = complement;
-      Console.WriteLine(registers.A);
+
+      registers.SetFlag(Flag.SUBSTRACTION);
+      registers.SetFlag(Flag.HALF_CARRY);
     }
 
     private void CCF()
     {
-      if (registers.GetFlag(Flag.CARRY))
-      {
-        registers.ClearFlag(Flag.CARRY);
-      }
-      else
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
+      registers.FlipFlag(Flag.CARRY);
+      registers.ClearFlag(Flag.SUBSTRACTION);
+      registers.ClearFlag(Flag.HALF_CARRY);
+    }
+
+    private void SCF()
+    {
+      registers.ClearFlag(Flag.SUBSTRACTION);
+      registers.ClearFlag(Flag.HALF_CARRY);
+      registers.SetFlag(Flag.CARRY);
     }
 
     #endregion

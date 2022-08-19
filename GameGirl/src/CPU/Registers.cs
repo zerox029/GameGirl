@@ -94,6 +94,11 @@ namespace GameGirl
 
     public void ClearFlag(Flag flag)
     {
+      F &= (byte)~(1 << (byte)flag);
+    }
+
+    public void FlipFlag(Flag flag)
+    {
       F ^= (byte)flag;
     }
 
