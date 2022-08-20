@@ -1,4 +1,6 @@
 using System;
+using System.Reflection;
+using System.Linq.Expressions;
 using Exceptions;
 
 namespace GameGirl
@@ -22,6 +24,7 @@ namespace GameGirl
       instructions = new Instruction[256];
 
       instructions[0x00] = new Instruction("NOP", 0x00, 1, (value) => NOP());
+      instructions[0x04] = new Instruction("INC B", 0x04, 1, (value) => INC(registers, reg => reg.B));
 
       instructions[0x2F] = new Instruction("CPL", 0x2F, 1, (value) => CPL());
 
@@ -168,7 +171,6 @@ namespace GameGirl
 
       if (result == 0) registers.SetFlag(Flag.ZERO);
 
-      //Carry flags
       if ((carry & 0x100) != 0)
       {
         registers.SetFlag(Flag.CARRY);
@@ -250,6 +252,19 @@ namespace GameGirl
       {
         registers.SetFlag(Flag.HALF_CARRY);
       }
+    }
+
+    private void INC<T>(T target, Expression<Func<T, byte>> outExpr)
+    {
+      var expr = (MemberExpression)outExpr.Body;
+      var prop = (PropertyInfo)expr.Member;
+
+      byte oldValue = (byte)prop.GetValue(target);
+      byte newValue = (byte)(oldValue + 1);
+
+      prop.SetValue(target, newValue, null);
+
+      SetFlags(oldValue, 1, false);
     }
 
     // Used by opcodes 0x90 to 0x95 and 0x97
@@ -346,5 +361,62 @@ namespace GameGirl
     }
 
     #endregion
+
+    private void SetFlags(byte a, byte b, bool operationWasSubstraction)
+    {
+      if (operationWasSubstraction)
+      {
+        registers.SetFlag(Flag.SUBSTRACTION);
+
+        if (a - b == 0)
+        {
+          registers.SetFlag(Flag.ZERO);
+        }
+        else
+        {
+          registers.ClearFlag(Flag.ZERO);
+        }
+      }
+      else
+      {
+        registers.ClearFlag(Flag.SUBSTRACTION);
+
+        CheckAndSetCarryFlagForAddition(a, b);
+        CheckAndSetHalfCarryFlagForAddition(a, b);
+
+        if ((byte)(a + b) == 0)
+        {
+          registers.SetFlag(Flag.ZERO);
+        }
+        else
+        {
+          registers.ClearFlag(Flag.ZERO);
+        }
+      }
+    }
+
+    private void CheckAndSetCarryFlagForAddition(byte a, byte b)
+    {
+      if (a + b > 0xFF)
+      {
+        registers.SetFlag(Flag.CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.CARRY);
+      }
+    }
+
+    private void CheckAndSetHalfCarryFlagForAddition(byte a, byte b)
+    {
+      if ((((a & 0xF) + (b & 0xF)) & 0x10) == 0x10)
+      {
+        registers.SetFlag(Flag.HALF_CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.HALF_CARRY);
+      }
+    }
   }
 }

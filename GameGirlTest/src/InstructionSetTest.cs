@@ -12,6 +12,46 @@ namespace GameGirlTest
     private InstructionSet instructionSet;
 
     [TestMethod]
+    public void TestInstruction_INC_NoOverflow()
+    {
+      //Given; register B set to 0x00
+      registers = new Registers();
+      mmu = new MMU();
+
+      instructionSet = new InstructionSet(registers, mmu);
+
+      //When; instruction INC B is run
+      instructionSet.RunInstruction(0x04);
+
+      //Then; register B set to 1; flags Z, N and H set to 0
+      Assert.AreEqual(1, registers.B);
+      Assert.IsFalse(registers.GetFlag(Flag.ZERO));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
+      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
+    }
+
+    [TestMethod]
+    public void TestInstruction_INC_WithOverflow()
+    {
+      //Given; register B set to 0xFF
+      registers = new Registers();
+      registers.B = 0xFF;
+
+      mmu = new MMU();
+
+      instructionSet = new InstructionSet(registers, mmu);
+
+      //When; instruction INC B is run
+      instructionSet.RunInstruction(0x04);
+
+      //Then; register B set to 0; flags Z and H set to 1 and N set to 0
+      Assert.AreEqual(0, registers.B);
+      Assert.IsTrue(registers.GetFlag(Flag.ZERO));
+      Assert.IsTrue(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
+    }
+
+    [TestMethod]
     public void TestInstruction_0x2F()
     {
       //GIVEN
