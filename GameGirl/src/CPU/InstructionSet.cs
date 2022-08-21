@@ -24,11 +24,31 @@ namespace GameGirl
       instructions = new Instruction[256];
 
       instructions[0x00] = new Instruction("NOP", 0x00, 1, (value) => NOP());
+      instructions[0x03] = new Instruction("INC BC", 0x03, 1, (value) => INC(registers, reg => registers.BC));
       instructions[0x04] = new Instruction("INC B", 0x04, 1, (value) => INC(registers, reg => reg.B));
+      instructions[0x05] = new Instruction("DEC B", 0x05, 1, (value) => DEC(registers, reg => reg.B));
+      instructions[0x0C] = new Instruction("INC C", 0x0C, 1, (value) => INC(registers, reg => reg.C));
+      instructions[0x0D] = new Instruction("DEC C", 0x0D, 1, (value) => DEC(registers, reg => reg.C));
 
+      instructions[0x13] = new Instruction("INC DE", 0x13, 1, (value) => INC(registers, reg => registers.DE));
+      instructions[0x14] = new Instruction("INC D", 0x14, 1, (value) => INC(registers, reg => reg.D));
+      instructions[0x15] = new Instruction("DEC D", 0x15, 1, (value) => DEC(registers, reg => reg.D));
       instructions[0x2F] = new Instruction("CPL", 0x2F, 1, (value) => CPL());
+      instructions[0x1C] = new Instruction("INC D", 0x1C, 1, (value) => INC(registers, reg => reg.E));
+      instructions[0x1D] = new Instruction("DEC D", 0x1D, 1, (value) => DEC(registers, reg => reg.E));
 
+      instructions[0x23] = new Instruction("INC HL", 0x23, 1, (value) => INC(registers, reg => registers.HL));
+      instructions[0x24] = new Instruction("INC H", 0x24, 1, (value) => INC(registers, reg => reg.H));
+      instructions[0x25] = new Instruction("DEC H", 0x25, 1, (value) => DEC(registers, reg => reg.H));
+      instructions[0x2C] = new Instruction("INC L", 0x2C, 1, (value) => INC(registers, reg => reg.L));
+      instructions[0x2D] = new Instruction("DEC L", 0x2D, 1, (value) => DEC(registers, reg => reg.L));
+
+      instructions[0x33] = new Instruction("INC SP", 0x33, 1, (value) => INC(registers, reg => registers.SP));
+      instructions[0x34] = new Instruction("INC [HL]", 0x34, 1, (value) => INC(registers, reg => mmu.GetByte(registers.HL)));
+      instructions[0x35] = new Instruction("DEC [HL]", 0x35, 1, (value) => DEC(registers, reg => mmu.GetByte(registers.HL)));
       instructions[0x37] = new Instruction("SCF", 0x37, 1, (value) => SCF());
+      instructions[0x3C] = new Instruction("INC A", 0x3C, 1, (value) => INC(registers, reg => reg.A));
+      instructions[0x3D] = new Instruction("DEC A", 0x3D, 1, (value) => DEC(registers, reg => reg.A));
       instructions[0x3F] = new Instruction("CCF", 0x3F, 1, (value) => CCF());
 
       instructions[0x40] = new Instruction("LD B, B", 0x40, 1, (value) => registers.B = registers.B);
@@ -124,6 +144,14 @@ namespace GameGirl
       instructions[0x95] = new Instruction("SUB A l", 0x95, 1, (value) => SUB(registers.L));
       instructions[0x96] = new Instruction("SUB A [hl]", 0x96, 1, (value) => SUB(mmu.GetByte(registers.HL)));
       instructions[0x97] = new Instruction("SUB A a", 0x97, 1, (value) => SUB(registers.A));
+      instructions[0x98] = new Instruction("SBC A b", 0x98, 1, (value) => SBC(registers.B));
+      instructions[0x99] = new Instruction("SBC A c", 0x99, 1, (value) => SBC(registers.C));
+      instructions[0x9A] = new Instruction("SBC A d", 0x9A, 1, (value) => SBC(registers.D));
+      instructions[0x9B] = new Instruction("SBC A e", 0x9B, 1, (value) => SBC(registers.E));
+      instructions[0x9C] = new Instruction("SBC A h", 0x9C, 1, (value) => SBC(registers.H));
+      instructions[0x9D] = new Instruction("SBC A l", 0x9D, 1, (value) => SBC(registers.L));
+      instructions[0x9E] = new Instruction("SBC A [hl]", 0x9E, 1, (value) => SBC(mmu.GetByte(registers.HL)));
+      instructions[0x9F] = new Instruction("SBC A a", 0x9F, 1, (value) => SBC(registers.A));
 
       instructions[0xC2] = new Instruction("JP NZ, a16", 0xC2, 3, (value) => JP(value, () => !registers.GetFlag(Flag.ZERO)));
       instructions[0xC3] = new Instruction("JP, a16", 0xC3, 3, (value) => JP(value));
@@ -204,29 +232,79 @@ namespace GameGirl
       SetFlags(oldValue, 1, false);
     }
 
+    /// Increase the value in a specified register pair by 1
+    /// Cycles: 1, Bytes: 2
+    /// Affected flags: none
+    private void INC<T>(T target, Expression<Func<T, ushort>> outExpr)
+    {
+      var expr = (MemberExpression)outExpr.Body;
+      var prop = (PropertyInfo)expr.Member;
+
+      ushort oldValue = (ushort)prop.GetValue(target);
+      ushort newValue = (ushort)(oldValue + 1);
+
+      prop.SetValue(target, newValue, null);
+
+      SetFlags(oldValue, 1, false);
+    }
+
+    /// Decrease the value in a specified register by 1
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: ZNH
+    private void DEC<T>(T target, Expression<Func<T, byte>> outExpr)
+    {
+      var expr = (MemberExpression)outExpr.Body;
+      var prop = (PropertyInfo)expr.Member;
+
+      byte oldValue = (byte)prop.GetValue(target);
+      byte newValue = (byte)(oldValue - 1);
+
+      prop.SetValue(target, newValue, null);
+
+      SetFlags(oldValue, 1, true);
+    }
+
+    /// Decrease the value in a specified register by 1
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: ZNH
+    private void DEC<T>(T target, Expression<Func<T, ushort>> outExpr)
+    {
+      var expr = (MemberExpression)outExpr.Body;
+      var prop = (PropertyInfo)expr.Member;
+
+      ushort oldValue = (ushort)prop.GetValue(target);
+      ushort newValue = (ushort)(oldValue - 1);
+
+      prop.SetValue(target, newValue, null);
+
+      SetFlags(oldValue, 1, true);
+    }
+
     /// Substract a specified byte value from register A
     /// Cycles: 1, Bytes: 1
     /// Affected flags: ZNHC
     private void SUB(byte value)
     {
+      byte oldValue = registers.A;
       int result = registers.A - value;
-      int carry = registers.A ^ value ^ result;
 
-      registers.ClearAllFlags();
+      registers.A = (byte)result;
 
-      registers.SetFlag(Flag.SUBSTRACTION);
+      SetFlags(oldValue, value, true);
+    }
 
-      if (result == 0) registers.SetFlag(Flag.ZERO);
+    /// Subtract a specified value and the carry flag from A
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: ZHNC
+    private void SBC(byte value)
+    {
+      byte oldValue = registers.A;
+      int carry = registers.GetFlag(Flag.CARRY) ? 1 : 0;
+      int result = registers.A - value - carry;
 
-      //Carry flags
-      if (value > registers.A)
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
-      if ((carry & 0x10) != 0)
-      {
-        registers.SetFlag(Flag.HALF_CARRY);
-      }
+      registers.A = (byte)result;
+
+      SetFlags(oldValue, (byte)(value + carry), true);
     }
 
     #endregion
@@ -301,6 +379,9 @@ namespace GameGirl
       {
         registers.SetFlag(Flag.SUBSTRACTION);
 
+        CheckAndSetCarryFlagForSubstraction(a, b);
+        CheckAndSetHalfCarryFlagForSubstraction(a, b);
+
         if (a - b == 0)
         {
           registers.SetFlag(Flag.ZERO);
@@ -329,7 +410,44 @@ namespace GameGirl
       }
     }
 
-    private void CheckAndSetCarryFlagForAddition(byte a, byte b)
+    private void SetFlags(ushort a, ushort b, bool operationWasSubstraction)
+    {
+      if (operationWasSubstraction)
+      {
+        registers.SetFlag(Flag.SUBSTRACTION);
+
+        CheckAndSetCarryFlagForSubstraction(a, b);
+        CheckAndSetHalfCarryFlagForSubstraction(a, b);
+
+        if (a - b == 0)
+        {
+          registers.SetFlag(Flag.ZERO);
+        }
+        else
+        {
+          registers.ClearFlag(Flag.ZERO);
+        }
+      }
+      else
+      {
+        registers.ClearFlag(Flag.SUBSTRACTION);
+
+        CheckAndSetCarryFlagForAddition(a, b);
+        CheckAndSetHalfCarryFlagForAddition(a, b);
+
+        ushort val = (ushort)(a + b);
+        if ((ushort)(a + b) == 0)
+        {
+          registers.SetFlag(Flag.ZERO);
+        }
+        else
+        {
+          registers.ClearFlag(Flag.ZERO);
+        }
+      }
+    }
+
+    private void CheckAndSetCarryFlagForAddition(ushort a, ushort b)
     {
       if (a + b > 0xFF)
       {
@@ -341,9 +459,33 @@ namespace GameGirl
       }
     }
 
-    private void CheckAndSetHalfCarryFlagForAddition(byte a, byte b)
+    private void CheckAndSetCarryFlagForSubstraction(ushort a, ushort b)
+    {
+      if (a < b)
+      {
+        registers.SetFlag(Flag.CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.CARRY);
+      }
+    }
+
+    private void CheckAndSetHalfCarryFlagForAddition(ushort a, ushort b)
     {
       if ((((a & 0xF) + (b & 0xF)) & 0x10) == 0x10)
+      {
+        registers.SetFlag(Flag.HALF_CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.HALF_CARRY);
+      }
+    }
+
+    private void CheckAndSetHalfCarryFlagForSubstraction(ushort a, ushort b)
+    {
+      if ((((a & 0xF) - (b & 0xF)) & 0x10) == 0x10)
       {
         registers.SetFlag(Flag.HALF_CARRY);
       }

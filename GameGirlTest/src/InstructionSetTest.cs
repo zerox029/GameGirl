@@ -52,6 +52,27 @@ namespace GameGirlTest
     }
 
     [TestMethod]
+    public void TestInstruction_DEC_NoHalfCarry()
+    {
+      //Given; register B set to 0x01
+      registers = new Registers();
+      registers.B = 0x01;
+      mmu = new MMU();
+
+      instructionSet = new InstructionSet(registers, mmu);
+
+      //When; instruction INC B is run
+      instructionSet.RunInstruction(0x05);
+
+      //Then; register B set to 0; ZN flags set
+      Assert.AreEqual(0, registers.B);
+      Assert.IsTrue(registers.GetFlag(Flag.ZERO));
+      Assert.IsTrue(registers.GetFlag(Flag.SUBSTRACTION));
+      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.CARRY));
+    }
+
+    [TestMethod]
     public void TestInstruction_ADD_8bit_NoCarry()
     {
       //Given; register A set to 0x00 and register B is set to 10
@@ -186,6 +207,53 @@ namespace GameGirlTest
       Assert.IsTrue(registers.GetFlag(Flag.HALF_CARRY));
       Assert.IsTrue(registers.GetFlag(Flag.CARRY));
       Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
+    }
+
+    [TestMethod]
+    public void TestInstruction_SUB_8bit_NoCarry()
+    {
+      //Given; register A set to 0x10 and register B is set to 0x10
+      registers = new Registers();
+      registers.A = 0x10;
+      registers.B = 0x10;
+
+      mmu = new MMU();
+
+      instructionSet = new InstructionSet(registers, mmu);
+
+      //When; instruction SUB A, B is run
+      instructionSet.RunInstruction(0x90);
+
+      //Then; register A set to 0; zero and substraction flags are set
+      Assert.AreEqual(0, registers.A);
+      Assert.IsTrue(registers.GetFlag(Flag.ZERO));
+      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.CARRY));
+      Assert.IsTrue(registers.GetFlag(Flag.SUBSTRACTION));
+    }
+
+    [TestMethod]
+    public void TestInstruction_SBC_8bit_NoCarry()
+    {
+      //Given; register A set to 10 and register B is set to 9, carry flag is set
+      registers = new Registers();
+      registers.A = 10;
+      registers.B = 9;
+      registers.SetFlag(Flag.CARRY);
+
+      mmu = new MMU();
+
+      instructionSet = new InstructionSet(registers, mmu);
+
+      //When; instruction SBC A, B is run
+      instructionSet.RunInstruction(0x98);
+
+      //Then; register A set to 0; zero and substraction flags are set
+      Assert.AreEqual(0, registers.A);
+      Assert.IsTrue(registers.GetFlag(Flag.ZERO));
+      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.CARRY));
+      Assert.IsTrue(registers.GetFlag(Flag.SUBSTRACTION));
     }
   }
 }
