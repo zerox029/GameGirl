@@ -105,7 +105,7 @@ namespace GameGirl
       instructions[0x83] = new Instruction("ADD A e", 0x83, 1, (value) => ADD(registers.E));
       instructions[0x84] = new Instruction("ADD A h", 0x84, 1, (value) => ADD(registers.H));
       instructions[0x85] = new Instruction("ADD A l", 0x85, 1, (value) => ADD(registers.L));
-      instructions[0x86] = new Instruction("ADD A [hl]", 0x86, 1, (value) => ADD(registers.HL));
+      instructions[0x86] = new Instruction("ADD A [hl]", 0x86, 1, (value) => ADD(mmu.GetByte(registers.HL)));
       instructions[0x87] = new Instruction("ADD A a", 0x87, 1, (value) => ADD(registers.A));
       instructions[0x88] = new Instruction("ADC A b", 0x88, 1, (value) => ADC(registers.B));
       instructions[0x89] = new Instruction("ADC A c", 0x89, 1, (value) => ADC(registers.C));
@@ -113,7 +113,7 @@ namespace GameGirl
       instructions[0x8B] = new Instruction("ADC A e", 0x8B, 1, (value) => ADC(registers.E));
       instructions[0x8C] = new Instruction("ADC A h", 0x8C, 1, (value) => ADC(registers.H));
       instructions[0x8D] = new Instruction("ADC A l", 0x8D, 1, (value) => ADC(registers.L));
-      instructions[0x8E] = new Instruction("ADC A [hl]", 0x8E, 1, (value) => ADC(registers.HL));
+      instructions[0x8E] = new Instruction("ADC A [hl]", 0x8E, 1, (value) => ADC(mmu.GetByte(registers.HL)));
       instructions[0x8F] = new Instruction("ADC A a", 0x8F, 1, (value) => ADC(registers.A));
 
       instructions[0x90] = new Instruction("SUB A b", 0x90, 1, (value) => SUB(registers.B));
@@ -122,7 +122,7 @@ namespace GameGirl
       instructions[0x93] = new Instruction("SUB A e", 0x93, 1, (value) => SUB(registers.E));
       instructions[0x94] = new Instruction("SUB A h", 0x94, 1, (value) => SUB(registers.H));
       instructions[0x95] = new Instruction("SUB A l", 0x95, 1, (value) => SUB(registers.L));
-      instructions[0x96] = new Instruction("SUB A [hl]", 0x96, 1, (value) => SUB(registers.HL));
+      instructions[0x96] = new Instruction("SUB A [hl]", 0x96, 1, (value) => SUB(mmu.GetByte(registers.HL)));
       instructions[0x97] = new Instruction("SUB A a", 0x97, 1, (value) => SUB(registers.A));
 
       instructions[0xC2] = new Instruction("JP NZ, a16", 0xC2, 3, (value) => JP(value, () => !registers.GetFlag(Flag.ZERO)));
@@ -161,7 +161,9 @@ namespace GameGirl
 
     #region 8-bit Arithmetic and Logic Instructions
 
-    // Used by opcodes 0x80 to 0x85 and 0x87
+    /// Add a specified byte value to register A
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: ZNHC
     private void ADD(byte value)
     {
       byte oldValue = registers.A;
@@ -172,30 +174,9 @@ namespace GameGirl
       SetFlags(oldValue, value, false);
     }
 
-    // Used by opcode 0x86
-    private void ADD(ushort value)
-    {
-      int result = registers.A + value;
-      int carry = registers.A ^ value ^ result;
-
-      registers.ClearAllFlags();
-
-      if (result == 0) registers.SetFlag(Flag.ZERO);
-
-      //Carry flags
-      if ((carry & 0x100) != 0)
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
-      if ((carry & 0x10) != 0)
-      {
-        registers.SetFlag(Flag.HALF_CARRY);
-      }
-
-      registers.A = (byte)result;
-    }
-
-    // Used by opcodes 0x88 - 0x8F
+    /// Add a specified byte value to register A plus the carry flag
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: ZNHC
     private void ADC(byte value)
     {
       byte oldValue = registers.A;
@@ -207,29 +188,9 @@ namespace GameGirl
       SetFlags(oldValue, (byte)(value + carry), false);
     }
 
-    // Used by opcodes 0x88 to 0x8D and 0x8F 
-    private void ADC(ushort value)
-    {
-      int carry = registers.GetFlag(Flag.CARRY) ? 1 : 0;
-      int result = registers.A + value + carry;
-
-      int carryValue = registers.A ^ value ^ result;
-
-      registers.ClearAllFlags();
-
-      if (result == 0) registers.SetFlag(Flag.ZERO);
-
-      //Carry flags
-      if ((carry & 0x100) != 0)
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
-      if ((carry & 0x10) != 0)
-      {
-        registers.SetFlag(Flag.HALF_CARRY);
-      }
-    }
-
+    /// Increase the value in a specified register by 1
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: ZNH
     private void INC<T>(T target, Expression<Func<T, byte>> outExpr)
     {
       var expr = (MemberExpression)outExpr.Body;
@@ -243,31 +204,10 @@ namespace GameGirl
       SetFlags(oldValue, 1, false);
     }
 
-    // Used by opcodes 0x90 to 0x95 and 0x97
+    /// Substract a specified byte value from register A
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: ZNHC
     private void SUB(byte value)
-    {
-      int result = registers.A - value;
-      int carry = registers.A ^ value ^ result;
-
-      registers.ClearAllFlags();
-
-      registers.SetFlag(Flag.SUBSTRACTION);
-
-      if (result == 0) registers.SetFlag(Flag.ZERO);
-
-      //Carry flags
-      if (value > registers.A)
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
-      if ((carry & 0x10) != 0)
-      {
-        registers.SetFlag(Flag.HALF_CARRY);
-      }
-    }
-
-    // Used by opcodes 0x96
-    private void SUB(ushort value)
     {
       int result = registers.A - value;
       int carry = registers.A ^ value ^ result;
@@ -293,11 +233,17 @@ namespace GameGirl
 
     #region Jumps and Subroutines
 
+    /// Jump to a specified memory address; effectively, store a specified address into PC.
+    /// Cycles: 4, Bytes: 3
+    /// Affected flags: none
     private void JP(ushort address)
     {
       registers.PC = address;
     }
 
+    /// Jump to a specified memory address; effectively, store a specified address into PC given that a specified condition is met
+    /// Cycles: 4 taken / 3 untaken, Bytes: 3
+    /// Affected flags: none
     private void JP(ushort address, Func<bool> condition)
     {
       if (condition.Invoke())
@@ -310,9 +256,14 @@ namespace GameGirl
 
     #region Miscellaneous Instructions
 
-    // Used by opcode 0x00
+    /// No OPeration
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: none
     private void NOP() { }
 
+    /// ComPLement accumulator (A = ~A)
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: NH
     private void CPL()
     {
       var complement = (byte)~registers.A;
@@ -322,6 +273,9 @@ namespace GameGirl
       registers.SetFlag(Flag.HALF_CARRY);
     }
 
+    /// Complement Carry Flag
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: NHC
     private void CCF()
     {
       registers.FlipFlag(Flag.CARRY);
@@ -329,6 +283,9 @@ namespace GameGirl
       registers.ClearFlag(Flag.HALF_CARRY);
     }
 
+    /// Set Carry Flag
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: NHC
     private void SCF()
     {
       registers.ClearFlag(Flag.SUBSTRACTION);
