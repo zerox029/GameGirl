@@ -27,26 +27,30 @@ namespace GameGirl
       instructions[0x03] = new Instruction("INC BC", 0x03, 1, (value) => INC(registers, reg => registers.BC));
       instructions[0x04] = new Instruction("INC B", 0x04, 1, (value) => INC(registers, reg => reg.B));
       instructions[0x05] = new Instruction("DEC B", 0x05, 1, (value) => DEC(registers, reg => reg.B));
+      instructions[0x0B] = new Instruction("DEC BC", 0x0B, 1, (value) => DEC(registers, reg => reg.BC));
       instructions[0x0C] = new Instruction("INC C", 0x0C, 1, (value) => INC(registers, reg => reg.C));
       instructions[0x0D] = new Instruction("DEC C", 0x0D, 1, (value) => DEC(registers, reg => reg.C));
 
       instructions[0x13] = new Instruction("INC DE", 0x13, 1, (value) => INC(registers, reg => registers.DE));
       instructions[0x14] = new Instruction("INC D", 0x14, 1, (value) => INC(registers, reg => reg.D));
       instructions[0x15] = new Instruction("DEC D", 0x15, 1, (value) => DEC(registers, reg => reg.D));
-      instructions[0x2F] = new Instruction("CPL", 0x2F, 1, (value) => CPL());
+      instructions[0x1B] = new Instruction("DEC DE", 0x1B, 1, (value) => DEC(registers, reg => reg.DE));
       instructions[0x1C] = new Instruction("INC D", 0x1C, 1, (value) => INC(registers, reg => reg.E));
       instructions[0x1D] = new Instruction("DEC D", 0x1D, 1, (value) => DEC(registers, reg => reg.E));
 
       instructions[0x23] = new Instruction("INC HL", 0x23, 1, (value) => INC(registers, reg => registers.HL));
       instructions[0x24] = new Instruction("INC H", 0x24, 1, (value) => INC(registers, reg => reg.H));
       instructions[0x25] = new Instruction("DEC H", 0x25, 1, (value) => DEC(registers, reg => reg.H));
+      instructions[0x2B] = new Instruction("DEC HL", 0x2B, 1, (value) => DEC(registers, reg => reg.HL));
       instructions[0x2C] = new Instruction("INC L", 0x2C, 1, (value) => INC(registers, reg => reg.L));
       instructions[0x2D] = new Instruction("DEC L", 0x2D, 1, (value) => DEC(registers, reg => reg.L));
+      instructions[0x2F] = new Instruction("CPL", 0x2F, 1, (value) => CPL());
 
       instructions[0x33] = new Instruction("INC SP", 0x33, 1, (value) => INC(registers, reg => registers.SP));
       instructions[0x34] = new Instruction("INC [HL]", 0x34, 1, (value) => INC(registers, reg => mmu.GetByte(registers.HL)));
       instructions[0x35] = new Instruction("DEC [HL]", 0x35, 1, (value) => DEC(registers, reg => mmu.GetByte(registers.HL)));
       instructions[0x37] = new Instruction("SCF", 0x37, 1, (value) => SCF());
+      instructions[0x3B] = new Instruction("DEC SP", 0x3B, 1, (value) => DEC(registers, reg => reg.SP));
       instructions[0x3C] = new Instruction("INC A", 0x3C, 1, (value) => INC(registers, reg => reg.A));
       instructions[0x3D] = new Instruction("DEC A", 0x3D, 1, (value) => DEC(registers, reg => reg.A));
       instructions[0x3F] = new Instruction("CCF", 0x3F, 1, (value) => CCF());
@@ -152,6 +156,15 @@ namespace GameGirl
       instructions[0x9D] = new Instruction("SBC A l", 0x9D, 1, (value) => SBC(registers.L));
       instructions[0x9E] = new Instruction("SBC A [hl]", 0x9E, 1, (value) => SBC(mmu.GetByte(registers.HL)));
       instructions[0x9F] = new Instruction("SBC A a", 0x9F, 1, (value) => SBC(registers.A));
+
+      instructions[0xB8] = new Instruction("CP B", 0xB8, 1, (value) => CP(registers.B));
+      instructions[0xB9] = new Instruction("CP C", 0xB9, 1, (value) => CP(registers.C));
+      instructions[0xBA] = new Instruction("CP D", 0xBA, 1, (value) => CP(registers.D));
+      instructions[0xBB] = new Instruction("CP E", 0xBB, 1, (value) => CP(registers.E));
+      instructions[0xBC] = new Instruction("CP H", 0xBC, 1, (value) => CP(registers.H));
+      instructions[0xBD] = new Instruction("CP L", 0xBD, 1, (value) => CP(registers.L));
+      instructions[0xBE] = new Instruction("CP [HL]", 0xBE, 1, (value) => CP(mmu.GetByte(registers.HL)));
+      instructions[0xBF] = new Instruction("CP A", 0xBF, 1, (value) => CP(registers.A));
 
       instructions[0xC2] = new Instruction("JP NZ, a16", 0xC2, 3, (value) => JP(value, () => !registers.GetFlag(Flag.ZERO)));
       instructions[0xC3] = new Instruction("JP, a16", 0xC3, 3, (value) => JP(value));
@@ -338,6 +351,17 @@ namespace GameGirl
     /// Cycles: 1, Bytes: 1
     /// Affected flags: none
     private void NOP() { }
+
+    /// Subtract a specified value from A and set flags accordingly, but don't store the result. This is useful for ComParing values
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: ZNHC
+    private void CP(byte value)
+    {
+      byte oldValue = registers.A;
+      int result = registers.A - value;
+
+      SetFlags(oldValue, value, true);
+    }
 
     /// ComPLement accumulator (A = ~A)
     /// Cycles: 1, Bytes: 1

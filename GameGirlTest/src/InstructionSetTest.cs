@@ -255,5 +255,28 @@ namespace GameGirlTest
       Assert.IsFalse(registers.GetFlag(Flag.CARRY));
       Assert.IsTrue(registers.GetFlag(Flag.SUBSTRACTION));
     }
+
+    [TestMethod]
+    public void TestInstruction_CP()
+    {
+      //Given; register A set to 0x10 and register B is set to 0x10
+      registers = new Registers();
+      registers.A = 0x10;
+      registers.B = 0x10;
+
+      mmu = new MMU();
+
+      instructionSet = new InstructionSet(registers, mmu);
+
+      //When; instruction SUB A, B is run
+      instructionSet.RunInstruction(0xB8);
+
+      //Then; register A set to 0; zero and substraction flags are set
+      Assert.AreEqual(0x10, registers.A);
+      Assert.IsTrue(registers.GetFlag(Flag.ZERO));
+      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.CARRY));
+      Assert.IsTrue(registers.GetFlag(Flag.SUBSTRACTION));
+    }
   }
 }
