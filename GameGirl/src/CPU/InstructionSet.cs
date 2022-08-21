@@ -99,31 +99,31 @@ namespace GameGirl
       instructions[0x6E] = new Instruction("LD A, [HL]", 0x6E, 1, (value) => registers.A = mmu.GetByte(registers.HL));
       instructions[0x6F] = new Instruction("LD A, A", 0x6F, 1, (value) => registers.A = registers.A);
 
-      instructions[0x80] = new Instruction("add A b", 0x80, 1, (value) => ADD(registers.B));
-      instructions[0x81] = new Instruction("add A c", 0x81, 1, (value) => ADD(registers.C));
-      instructions[0x82] = new Instruction("add A d", 0x82, 1, (value) => ADD(registers.D));
-      instructions[0x83] = new Instruction("add A e", 0x83, 1, (value) => ADD(registers.E));
-      instructions[0x84] = new Instruction("add A h", 0x84, 1, (value) => ADD(registers.H));
-      instructions[0x85] = new Instruction("add A l", 0x85, 1, (value) => ADD(registers.L));
-      instructions[0x86] = new Instruction("add A [hl]", 0x86, 1, (value) => ADD(registers.HL));
-      instructions[0x87] = new Instruction("add A a", 0x87, 1, (value) => ADD(registers.A));
-      instructions[0x88] = new Instruction("adc A b", 0x88, 1, (value) => ADC(registers.B));
-      instructions[0x89] = new Instruction("adc A c", 0x89, 1, (value) => ADC(registers.C));
-      instructions[0x8A] = new Instruction("adc A d", 0x8A, 1, (value) => ADC(registers.D));
-      instructions[0x8B] = new Instruction("adc A e", 0x8B, 1, (value) => ADC(registers.E));
-      instructions[0x8C] = new Instruction("adc A h", 0x8C, 1, (value) => ADC(registers.H));
-      instructions[0x8D] = new Instruction("adc A l", 0x8D, 1, (value) => ADC(registers.L));
-      instructions[0x8E] = new Instruction("adc A [hl]", 0x8E, 1, (value) => ADC(registers.HL));
-      instructions[0x8F] = new Instruction("adc A a", 0x8F, 1, (value) => ADC(registers.A));
+      instructions[0x80] = new Instruction("ADD A b", 0x80, 1, (value) => ADD(registers.B));
+      instructions[0x81] = new Instruction("ADD A c", 0x81, 1, (value) => ADD(registers.C));
+      instructions[0x82] = new Instruction("ADD A d", 0x82, 1, (value) => ADD(registers.D));
+      instructions[0x83] = new Instruction("ADD A e", 0x83, 1, (value) => ADD(registers.E));
+      instructions[0x84] = new Instruction("ADD A h", 0x84, 1, (value) => ADD(registers.H));
+      instructions[0x85] = new Instruction("ADD A l", 0x85, 1, (value) => ADD(registers.L));
+      instructions[0x86] = new Instruction("ADD A [hl]", 0x86, 1, (value) => ADD(registers.HL));
+      instructions[0x87] = new Instruction("ADD A a", 0x87, 1, (value) => ADD(registers.A));
+      instructions[0x88] = new Instruction("ADC A b", 0x88, 1, (value) => ADC(registers.B));
+      instructions[0x89] = new Instruction("ADC A c", 0x89, 1, (value) => ADC(registers.C));
+      instructions[0x8A] = new Instruction("ADC A d", 0x8A, 1, (value) => ADC(registers.D));
+      instructions[0x8B] = new Instruction("ADC A e", 0x8B, 1, (value) => ADC(registers.E));
+      instructions[0x8C] = new Instruction("ADC A h", 0x8C, 1, (value) => ADC(registers.H));
+      instructions[0x8D] = new Instruction("ADC A l", 0x8D, 1, (value) => ADC(registers.L));
+      instructions[0x8E] = new Instruction("ADC A [hl]", 0x8E, 1, (value) => ADC(registers.HL));
+      instructions[0x8F] = new Instruction("ADC A a", 0x8F, 1, (value) => ADC(registers.A));
 
-      instructions[0x90] = new Instruction("sub A b", 0x90, 1, (value) => SUB(registers.B));
-      instructions[0x91] = new Instruction("sub A c", 0x91, 1, (value) => SUB(registers.C));
-      instructions[0x92] = new Instruction("sub A d", 0x92, 1, (value) => SUB(registers.D));
-      instructions[0x93] = new Instruction("sub A e", 0x93, 1, (value) => SUB(registers.E));
-      instructions[0x94] = new Instruction("sub A h", 0x94, 1, (value) => SUB(registers.H));
-      instructions[0x95] = new Instruction("sub A l", 0x95, 1, (value) => SUB(registers.L));
-      instructions[0x96] = new Instruction("sub A [hl]", 0x96, 1, (value) => SUB(registers.HL));
-      instructions[0x97] = new Instruction("sub A a", 0x97, 1, (value) => SUB(registers.A));
+      instructions[0x90] = new Instruction("SUB A b", 0x90, 1, (value) => SUB(registers.B));
+      instructions[0x91] = new Instruction("SUB A c", 0x91, 1, (value) => SUB(registers.C));
+      instructions[0x92] = new Instruction("SUB A d", 0x92, 1, (value) => SUB(registers.D));
+      instructions[0x93] = new Instruction("SUB A e", 0x93, 1, (value) => SUB(registers.E));
+      instructions[0x94] = new Instruction("SUB A h", 0x94, 1, (value) => SUB(registers.H));
+      instructions[0x95] = new Instruction("SUB A l", 0x95, 1, (value) => SUB(registers.L));
+      instructions[0x96] = new Instruction("SUB A [hl]", 0x96, 1, (value) => SUB(registers.HL));
+      instructions[0x97] = new Instruction("SUB A a", 0x97, 1, (value) => SUB(registers.A));
 
       instructions[0xC2] = new Instruction("JP NZ, a16", 0xC2, 3, (value) => JP(value, () => !registers.GetFlag(Flag.ZERO)));
       instructions[0xC3] = new Instruction("JP, a16", 0xC3, 3, (value) => JP(value));
@@ -164,23 +164,12 @@ namespace GameGirl
     // Used by opcodes 0x80 to 0x85 and 0x87
     private void ADD(byte value)
     {
+      byte oldValue = registers.A;
       int result = registers.A + value;
-      int carry = registers.A ^ value ^ result;
-
-      registers.ClearAllFlags();
-
-      if (result == 0) registers.SetFlag(Flag.ZERO);
-
-      if ((carry & 0x100) != 0)
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
-      if ((carry & 0x10) != 0)
-      {
-        registers.SetFlag(Flag.HALF_CARRY);
-      }
 
       registers.A = (byte)result;
+
+      SetFlags(oldValue, value, false);
     }
 
     // Used by opcode 0x86
@@ -209,26 +198,13 @@ namespace GameGirl
     // Used by opcodes 0x88 - 0x8F
     private void ADC(byte value)
     {
+      byte oldValue = registers.A;
       int carry = registers.GetFlag(Flag.CARRY) ? 1 : 0;
       int result = registers.A + value + carry;
 
-      int carryValue = registers.A ^ value ^ result;
-
-      registers.ClearAllFlags();
-
-      if (result == 0) registers.SetFlag(Flag.ZERO);
-
-      //Carry flags
-      if ((carry & 0x100) != 0)
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
-      if ((carry & 0x10) != 0)
-      {
-        registers.SetFlag(Flag.HALF_CARRY);
-      }
-
       registers.A = (byte)result;
+
+      SetFlags(oldValue, (byte)(value + carry), false);
     }
 
     // Used by opcodes 0x88 to 0x8D and 0x8F 
@@ -384,6 +360,7 @@ namespace GameGirl
         CheckAndSetCarryFlagForAddition(a, b);
         CheckAndSetHalfCarryFlagForAddition(a, b);
 
+        byte val = (byte)(a + b);
         if ((byte)(a + b) == 0)
         {
           registers.SetFlag(Flag.ZERO);

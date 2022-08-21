@@ -12,7 +12,7 @@ namespace GameGirlTest
     private InstructionSet instructionSet;
 
     [TestMethod]
-    public void TestInstruction_INC_NoOverflow()
+    public void TestInstruction_INC_NoHalfCarry()
     {
       //Given; register B set to 0x00
       registers = new Registers();
@@ -31,7 +31,7 @@ namespace GameGirlTest
     }
 
     [TestMethod]
-    public void TestInstruction_INC_WithOverflow()
+    public void TestInstruction_INC_WithHalfCarry()
     {
       //Given; register B set to 0xFF
       registers = new Registers();
@@ -52,206 +52,140 @@ namespace GameGirlTest
     }
 
     [TestMethod]
-    public void TestInstruction_0x2F()
+    public void TestInstruction_ADD_8bit_NoCarry()
     {
-      //GIVEN
+      //Given; register A set to 0x00 and register B is set to 10
       registers = new Registers();
-      registers.A = 0b00001111;
-
+      registers.B = 10;
       mmu = new MMU();
 
       instructionSet = new InstructionSet(registers, mmu);
 
-      //WHEN
-      instructionSet.RunInstruction(0x2F);
+      //When; instruction ADD A, B is run
+      instructionSet.RunInstruction(0x80);
 
-      //THEN
-      Assert.AreEqual(0b11110000, registers.A);
-      Assert.IsTrue(registers.GetFlag(Flag.SUBSTRACTION));
-      Assert.IsTrue(registers.GetFlag(Flag.HALF_CARRY));
-    }
-
-    [TestMethod]
-    public void TestInstruction_0x37()
-    {
-      //GIVEN
-      registers = new Registers();
-      mmu = new MMU();
-
-      instructionSet = new InstructionSet(registers, mmu);
-
-      //WHEN
-      instructionSet.RunInstruction(0x37);
-
-      //THEN
-      Assert.IsTrue(registers.GetFlag(Flag.CARRY));
-      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
+      //Then; register A set to 10; all flags set to 0
+      Assert.AreEqual(10, registers.A);
+      Assert.IsFalse(registers.GetFlag(Flag.ZERO));
       Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
-    }
-
-    [TestMethod]
-    public void TestInstruction_0x3F()
-    {
-      //GIVEN
-      registers = new Registers();
-      registers.SetFlag(Flag.CARRY);
-
-      mmu = new MMU();
-
-      instructionSet = new InstructionSet(registers, mmu);
-
-      //WHEN
-      instructionSet.RunInstruction(0x3F);
-
-      //THEN
       Assert.IsFalse(registers.GetFlag(Flag.CARRY));
       Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
-      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
     }
 
     [TestMethod]
-    public void TestInstruction_0x40()
+    public void TestInstruction_ADD_8bit_WithHalfCarry()
     {
-      //GIVEN
+      //Given; register A set to 15 and register B is set to 35
       registers = new Registers();
+      registers.A = 15;
       registers.B = 20;
 
       mmu = new MMU();
 
       instructionSet = new InstructionSet(registers, mmu);
 
-      //WHEN
-      instructionSet.RunInstruction(0x40);
+      //When; instruction ADD A, B is run
+      instructionSet.RunInstruction(0x80);
 
-      //THEN
-      Assert.AreEqual(registers.B, 20);
+      //Then; register A set to 35; all flags set to 0 except half carry
+      Assert.AreEqual(35, registers.A);
+      Assert.IsFalse(registers.GetFlag(Flag.ZERO));
+      Assert.IsTrue(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
     }
 
     [TestMethod]
-    public void TestInstruction_0x41()
+    public void TestInstruction_ADD_8bit_WithCarry()
     {
-      //GIVEN
+      //Given; register A set to 255 and register B is set to 1
       registers = new Registers();
-      registers.C = 20;
+      registers.A = 255;
+      registers.B = 1;
 
       mmu = new MMU();
 
       instructionSet = new InstructionSet(registers, mmu);
 
-      //WHEN
-      instructionSet.RunInstruction(0x41);
+      //When; instruction ADD A, B is run
+      instructionSet.RunInstruction(0x80);
 
-      //THEN
-      Assert.AreEqual(registers.B, 20);
+      //Then; register A set to 0; Zero and half carry flags are set
+      Assert.AreEqual(0, registers.A);
+      Assert.IsTrue(registers.GetFlag(Flag.ZERO));
+      Assert.IsTrue(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsTrue(registers.GetFlag(Flag.CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
     }
 
     [TestMethod]
-    public void TestInstruction_0x42()
+    public void TestInstruction_ADC_8bit_NoCarry()
     {
-      //GIVEN
+      //Given; register A set to 0x00 and register B is set to 10, carry flag set
       registers = new Registers();
-      registers.D = 20;
+      registers.B = 10;
+      registers.SetFlag(Flag.CARRY);
 
       mmu = new MMU();
 
       instructionSet = new InstructionSet(registers, mmu);
 
-      //WHEN
-      instructionSet.RunInstruction(0x42);
+      //When; instruction ADC A, B is run
+      instructionSet.RunInstruction(0x88);
 
-      //THEN
-      Assert.AreEqual(registers.B, 20);
+      //Then; register A set to 11; all flags set to 0
+      Assert.AreEqual(11, registers.A);
+      Assert.IsFalse(registers.GetFlag(Flag.ZERO));
+      Assert.IsFalse(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
     }
 
     [TestMethod]
-    public void TestInstruction_0x43()
+    public void TestInstruction_ADC_8bit_WithHalfCarry()
     {
-      //GIVEN
+      //Given; register A set to 15 and register B is set to 20, carry flag is set
       registers = new Registers();
-      registers.E = 20;
+      registers.A = 15;
+      registers.B = 20;
+      registers.SetFlag(Flag.CARRY);
 
       mmu = new MMU();
 
       instructionSet = new InstructionSet(registers, mmu);
 
-      //WHEN
-      instructionSet.RunInstruction(0x43);
+      //When; instruction ADC A, B is run
+      instructionSet.RunInstruction(0x88);
 
-      //THEN
-      Assert.AreEqual(registers.B, 20);
+      //Then; register A set to 35; all flags set to 0 except half carry
+      Assert.AreEqual(36, registers.A);
+      Assert.IsFalse(registers.GetFlag(Flag.ZERO));
+      Assert.IsTrue(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
     }
 
     [TestMethod]
-    public void TestInstruction_0x44()
+    public void TestInstruction_ADC_8bit_WithCarry()
     {
-      //GIVEN
+      //Given; register A set to 255 and register B is set to 0, carry flag is set
       registers = new Registers();
-      registers.H = 20;
+      registers.A = 255;
+      registers.SetFlag(Flag.CARRY);
 
       mmu = new MMU();
 
       instructionSet = new InstructionSet(registers, mmu);
 
-      //WHEN
-      instructionSet.RunInstruction(0x44);
+      //When; instruction ADC A, B is run
+      instructionSet.RunInstruction(0x88);
 
-      //THEN
-      Assert.AreEqual(registers.B, 20);
-    }
-
-    [TestMethod]
-    public void TestInstruction_0x45()
-    {
-      //GIVEN
-      registers = new Registers();
-      registers.L = 20;
-
-      mmu = new MMU();
-
-      instructionSet = new InstructionSet(registers, mmu);
-
-      //WHEN
-      instructionSet.RunInstruction(0x45);
-
-      //THEN
-      Assert.AreEqual(registers.B, 20);
-    }
-
-    [TestMethod]
-    public void TestInstruction_0x46()
-    {
-      //GIVEN
-      registers = new Registers();
-      registers.HL = 0x2F78;
-
-      mmu = new MMU();
-      mmu.WriteByte(0x2F78, 20);
-
-      instructionSet = new InstructionSet(registers, mmu);
-
-      //WHEN
-      instructionSet.RunInstruction(0x46);
-
-      //THEN
-      Assert.AreEqual(registers.B, 20);
-    }
-
-    [TestMethod]
-    public void TestInstruction_0x47()
-    {
-      //GIVEN
-      registers = new Registers();
-      registers.A = 20;
-
-      mmu = new MMU();
-
-      instructionSet = new InstructionSet(registers, mmu);
-
-      //WHEN
-      instructionSet.RunInstruction(0x47);
-
-      //THEN
-      Assert.AreEqual(registers.B, 20);
+      //Then; register A set to 0; zero, carry and halfcarry flags are set
+      Assert.AreEqual(0, registers.A);
+      Assert.IsTrue(registers.GetFlag(Flag.ZERO));
+      Assert.IsTrue(registers.GetFlag(Flag.HALF_CARRY));
+      Assert.IsTrue(registers.GetFlag(Flag.CARRY));
+      Assert.IsFalse(registers.GetFlag(Flag.SUBSTRACTION));
     }
   }
 }
