@@ -11,6 +11,8 @@ namespace GameGirlTest
 
     private InstructionSet instructionSet;
 
+    # region 8-bit Arithmetic and Logic Instructions
+
     [TestMethod]
     public void TestInstruction_INC_NoHalfCarry()
     {
@@ -278,5 +280,7 @@ namespace GameGirlTest
       Assert.IsFalse(registers.GetFlag(Flag.CARRY));
       Assert.IsTrue(registers.GetFlag(Flag.SUBSTRACTION));
     }
+
+    #endregion
   }
 }
