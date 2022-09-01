@@ -1,5 +1,5 @@
 using System;
-
+using System.Threading;
 namespace GameGirl
 {
   public class CPU
@@ -14,20 +14,23 @@ namespace GameGirl
       this.registers = new Registers();
       this.instructionSet = new InstructionSet(registers, mmu);
       this.mmu = mmu;
-
-      RunThroughRomOpcodes();
     }
 
-    //For testing purposes, run through each opcode one by one
-    public void RunThroughRomOpcodes()
+    public void EmulationLoop()
     {
-      foreach (byte b in mmu.GetRom())
+      while (true)
       {
-        Console.WriteLine("Executing opcode {0:X}", b);
+        ushort pc = registers.PC;
+        byte currentOpcode = mmu.GetByte(registers.PC);
+        byte instructionLength = instructionSet.GetInstructionLength(currentOpcode);
+        ushort argument = GetArgumentForCurrentOpcode((byte)(instructionLength - 1));
+
+        Console.Write("0x{0:X}: ", pc);
 
         try
         {
-          instructionSet.RunInstruction(b, 0);
+          registers.PC += instructionLength;
+          instructionSet.RunInstruction(currentOpcode, argument);
         }
         catch (Exception exception)
         {
@@ -35,6 +38,26 @@ namespace GameGirl
 
           return;
         }
+      }
+    }
+
+    private ushort GetArgumentForCurrentOpcode(byte argumentLength)
+    {
+      if (argumentLength == 1)
+      {
+        return mmu.GetByte((ushort)(registers.PC + 1));
+      }
+      else if (argumentLength == 2)
+      {
+        ushort upperNibble = (ushort)(mmu.GetByte((ushort)(registers.PC + 2)) << 8);
+        ushort lowerNibble = mmu.GetByte((ushort)(registers.PC + 1));
+
+        ushort arg = (ushort)(upperNibble + lowerNibble);
+        return arg;
+      }
+      else
+      {
+        return 0;
       }
     }
   }

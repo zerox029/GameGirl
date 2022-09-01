@@ -13,7 +13,7 @@ namespace GameGirl
       Init();
       LoadRom("roms/tetris.gb");
 
-      cpu.RunThroughRomOpcodes();
+      cpu.EmulationLoop();
     }
 
     private void Init()

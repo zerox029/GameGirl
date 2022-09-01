@@ -173,11 +173,21 @@ namespace GameGirl
       instructions[0xD2] = new Instruction("JP NC, a16", 0xD2, 3, (value) => JP(value, () => !registers.GetFlag(Flag.CARRY)));
       instructions[0xDA] = new Instruction("JP NC, a16", 0xDA, 3, (value) => JP(value, () => registers.GetFlag(Flag.CARRY)));
 
+      instructions[0xFF] = new Instruction("RST 7", 0xFF, 1, null);
     }
 
     public byte GetInstructionLength(byte opcode)
     {
-      return instructions[opcode].Length;
+      Instruction instruction = instructions[opcode];
+
+      if (instruction != null)
+      {
+        return instructions[opcode].Length;
+      }
+      else
+      {
+        return 0;
+      }
     }
 
     public void RunInstruction(byte opcode)
@@ -186,6 +196,8 @@ namespace GameGirl
 
       if (instruction == null) throw new UnknownOpcodeException(opcode);
       else if (instruction.Handler == null) throw new UnknownOpcodeException(instruction);
+
+      Console.WriteLine("Executing opcode {0:X} ({1})", opcode, instruction.Name);
 
       instruction.Handler.Invoke(0);
     }
@@ -196,6 +208,8 @@ namespace GameGirl
 
       if (instruction == null) throw new UnknownOpcodeException(opcode);
       else if (instruction.Handler == null) throw new UnknownOpcodeException(instruction);
+
+      Console.WriteLine("Executing opcode {0:X} ({1})", opcode, instruction.Name);
 
       instruction.Handler.Invoke(argument);
     }
