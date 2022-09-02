@@ -21,7 +21,7 @@ namespace GameGirl
       while (true)
       {
         ushort pc = registers.PC;
-        byte currentOpcode = mmu.GetByte(registers.PC);
+        byte currentOpcode = mmu.ReadByte(registers.PC);
         byte instructionLength = instructionSet.GetInstructionLength(currentOpcode);
         ushort argument = GetArgumentForCurrentOpcode((byte)(instructionLength - 1));
 
@@ -45,12 +45,12 @@ namespace GameGirl
     {
       if (argumentLength == 1)
       {
-        return mmu.GetByte((ushort)(registers.PC + 1));
+        return mmu.ReadByte((ushort)(registers.PC + 1));
       }
       else if (argumentLength == 2)
       {
-        ushort upperNibble = (ushort)(mmu.GetByte((ushort)(registers.PC + 2)) << 8);
-        ushort lowerNibble = mmu.GetByte((ushort)(registers.PC + 1));
+        ushort upperNibble = (ushort)(mmu.ReadByte((ushort)(registers.PC + 2)) << 8);
+        ushort lowerNibble = mmu.ReadByte((ushort)(registers.PC + 1));
 
         ushort arg = (ushort)(upperNibble + lowerNibble);
         return arg;

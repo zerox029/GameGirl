@@ -30,7 +30,7 @@ namespace GameGirl
       instructions[0x04] = new Instruction("INC B", 0x04, 1, (value) => INC(registers, reg => reg.B));
       instructions[0x05] = new Instruction("DEC B", 0x05, 1, (value) => DEC(registers, reg => reg.B));
       instructions[0x06] = new Instruction("LD B, d8", 0x06, 2, (value) => registers.B = (byte)value);
-      instructions[0x0A] = new Instruction("LD A, [BC]", 0x0A, 1, (value) => registers.A = mmu.GetByte(registers.BC));
+      instructions[0x0A] = new Instruction("LD A, [BC]", 0x0A, 1, (value) => registers.A = mmu.ReadByte(registers.BC));
       instructions[0x0B] = new Instruction("DEC BC", 0x0B, 1, (value) => DEC(registers, reg => reg.BC));
       instructions[0x0C] = new Instruction("INC C", 0x0C, 1, (value) => INC(registers, reg => reg.C));
       instructions[0x0D] = new Instruction("DEC C", 0x0D, 1, (value) => DEC(registers, reg => reg.C));
@@ -42,7 +42,7 @@ namespace GameGirl
       instructions[0x14] = new Instruction("INC D", 0x14, 1, (value) => INC(registers, reg => reg.D));
       instructions[0x15] = new Instruction("DEC D", 0x15, 1, (value) => DEC(registers, reg => reg.D));
       instructions[0x16] = new Instruction("LD D, d8", 0x16, 2, (value) => registers.D = (byte)value);
-      instructions[0x1A] = new Instruction("LD A, [DE]", 0x1A, 1, (value) => registers.A = mmu.GetByte(registers.DE));
+      instructions[0x1A] = new Instruction("LD A, [DE]", 0x1A, 1, (value) => registers.A = mmu.ReadByte(registers.DE));
       instructions[0x1B] = new Instruction("DEC DE", 0x1B, 1, (value) => DEC(registers, reg => reg.DE));
       instructions[0x1C] = new Instruction("INC E", 0x1C, 1, (value) => INC(registers, reg => reg.E));
       instructions[0x1D] = new Instruction("DEC E", 0x1D, 1, (value) => DEC(registers, reg => reg.E));
@@ -55,7 +55,7 @@ namespace GameGirl
       instructions[0x24] = new Instruction("INC H", 0x24, 1, (value) => INC(registers, reg => reg.H));
       instructions[0x25] = new Instruction("DEC H", 0x25, 1, (value) => DEC(registers, reg => reg.H));
       instructions[0x26] = new Instruction("LD H, d8", 0x26, 2, (value) => registers.H = (byte)value);
-      instructions[0x2A] = new Instruction("LD A, [HL+]", 0x2A, 1, (value) => { registers.A = mmu.GetByte(registers.HL); registers.HL++; });
+      instructions[0x2A] = new Instruction("LD A, [HL+]", 0x2A, 1, (value) => { registers.A = mmu.ReadByte(registers.HL); registers.HL++; });
       instructions[0x2B] = new Instruction("DEC HL", 0x2B, 1, (value) => DEC(registers, reg => reg.HL));
       instructions[0x2C] = new Instruction("INC L", 0x2C, 1, (value) => INC(registers, reg => reg.L));
       instructions[0x2D] = new Instruction("DEC L", 0x2D, 1, (value) => DEC(registers, reg => reg.L));
@@ -65,11 +65,11 @@ namespace GameGirl
       instructions[0x31] = new Instruction("LD SP, d16", 0x31, 3, (value) => registers.SP = value);
       instructions[0x32] = new Instruction("LD [HL-], A", 0x32, 1, (value) => { mmu.WriteByte(registers.HL, registers.A); registers.HL--; });
       instructions[0x33] = new Instruction("INC SP", 0x33, 1, (value) => INC(registers, reg => registers.SP));
-      instructions[0x34] = new Instruction("INC [HL]", 0x34, 1, (value) => INC(registers, reg => mmu.GetByte(registers.HL)));
-      instructions[0x35] = new Instruction("DEC [HL]", 0x35, 1, (value) => DEC(registers, reg => mmu.GetByte(registers.HL)));
+      instructions[0x34] = new Instruction("INC [HL]", 0x34, 1, (value) => INC(registers, reg => mmu.ReadByte(registers.HL)));
+      instructions[0x35] = new Instruction("DEC [HL]", 0x35, 1, (value) => DEC(registers, reg => mmu.ReadByte(registers.HL)));
       instructions[0x36] = new Instruction("LD [HL], d8", 0x36, 2, (value) => mmu.WriteByte(registers.HL, (byte)value));
       instructions[0x37] = new Instruction("SCF", 0x37, 1, (value) => SCF());
-      instructions[0x3A] = new Instruction("LD A, [HL-]", 0x3A, 1, (value) => { registers.A = mmu.GetByte(registers.HL); registers.HL--; });
+      instructions[0x3A] = new Instruction("LD A, [HL-]", 0x3A, 1, (value) => { registers.A = mmu.ReadByte(registers.HL); registers.HL--; });
       instructions[0x3B] = new Instruction("DEC SP", 0x3B, 1, (value) => DEC(registers, reg => reg.SP));
       instructions[0x3C] = new Instruction("INC A", 0x3C, 1, (value) => INC(registers, reg => reg.A));
       instructions[0x3D] = new Instruction("DEC A", 0x3D, 1, (value) => DEC(registers, reg => reg.A));
@@ -82,7 +82,7 @@ namespace GameGirl
       instructions[0x43] = new Instruction("LD B, E", 0x43, 1, (value) => registers.B = registers.E);
       instructions[0x44] = new Instruction("LD B, H", 0x44, 1, (value) => registers.B = registers.H);
       instructions[0x45] = new Instruction("LD B, L", 0x45, 1, (value) => registers.B = registers.L);
-      instructions[0x46] = new Instruction("LD B, [HL]", 0x46, 1, (value) => registers.B = mmu.GetByte(registers.HL));
+      instructions[0x46] = new Instruction("LD B, [HL]", 0x46, 1, (value) => registers.B = mmu.ReadByte(registers.HL));
       instructions[0x47] = new Instruction("LD B, A", 0x47, 1, (value) => registers.B = registers.A);
       instructions[0x48] = new Instruction("LD C, B", 0x48, 1, (value) => registers.C = registers.B);
       instructions[0x49] = new Instruction("LD C, C", 0x49, 1, (value) => registers.C = registers.C);
@@ -90,7 +90,7 @@ namespace GameGirl
       instructions[0x4B] = new Instruction("LD C, E", 0x4B, 1, (value) => registers.C = registers.E);
       instructions[0x4C] = new Instruction("LD C, H", 0x4C, 1, (value) => registers.C = registers.H);
       instructions[0x4D] = new Instruction("LD C, L", 0x4D, 1, (value) => registers.C = registers.L);
-      instructions[0x4E] = new Instruction("LD C, [HL]", 0x4E, 1, (value) => registers.C = mmu.GetByte(registers.HL));
+      instructions[0x4E] = new Instruction("LD C, [HL]", 0x4E, 1, (value) => registers.C = mmu.ReadByte(registers.HL));
       instructions[0x4F] = new Instruction("LD C, A", 0x4F, 1, (value) => registers.C = registers.A);
 
       instructions[0x50] = new Instruction("LD D, B", 0x50, 1, (value) => registers.D = registers.B);
@@ -99,7 +99,7 @@ namespace GameGirl
       instructions[0x53] = new Instruction("LD D, E", 0x53, 1, (value) => registers.D = registers.E);
       instructions[0x54] = new Instruction("LD D, H", 0x54, 1, (value) => registers.D = registers.H);
       instructions[0x55] = new Instruction("LD D, L", 0x55, 1, (value) => registers.D = registers.L);
-      instructions[0x56] = new Instruction("LD D, [HL]", 0x56, 1, (value) => registers.D = mmu.GetByte(registers.HL));
+      instructions[0x56] = new Instruction("LD D, [HL]", 0x56, 1, (value) => registers.D = mmu.ReadByte(registers.HL));
       instructions[0x57] = new Instruction("LD D, A", 0x57, 1, (value) => registers.D = registers.A);
       instructions[0x58] = new Instruction("LD E, B", 0x58, 1, (value) => registers.E = registers.B);
       instructions[0x59] = new Instruction("LD E, C", 0x59, 1, (value) => registers.E = registers.C);
@@ -107,7 +107,7 @@ namespace GameGirl
       instructions[0x5B] = new Instruction("LD E, E", 0x5B, 1, (value) => registers.E = registers.E);
       instructions[0x5C] = new Instruction("LD E, H", 0x5C, 1, (value) => registers.E = registers.H);
       instructions[0x5D] = new Instruction("LD E, L", 0x5D, 1, (value) => registers.E = registers.L);
-      instructions[0x5E] = new Instruction("LD E, [HL]", 0x5E, 1, (value) => registers.E = mmu.GetByte(registers.HL));
+      instructions[0x5E] = new Instruction("LD E, [HL]", 0x5E, 1, (value) => registers.E = mmu.ReadByte(registers.HL));
       instructions[0x5F] = new Instruction("LD E, A", 0x5F, 1, (value) => registers.E = registers.A);
 
       instructions[0x60] = new Instruction("LD H, B", 0x60, 1, (value) => registers.H = registers.B);
@@ -116,7 +116,7 @@ namespace GameGirl
       instructions[0x63] = new Instruction("LD H, E", 0x63, 1, (value) => registers.H = registers.E);
       instructions[0x64] = new Instruction("LD H, H", 0x64, 1, (value) => registers.H = registers.H);
       instructions[0x65] = new Instruction("LD H, L", 0x65, 1, (value) => registers.H = registers.L);
-      instructions[0x66] = new Instruction("LD H, [HL]", 0x66, 1, (value) => registers.H = mmu.GetByte(registers.HL));
+      instructions[0x66] = new Instruction("LD H, [HL]", 0x66, 1, (value) => registers.H = mmu.ReadByte(registers.HL));
       instructions[0x67] = new Instruction("LD H, A", 0x67, 1, (value) => registers.H = registers.A);
       instructions[0x68] = new Instruction("LD L, B", 0x68, 1, (value) => registers.L = registers.B);
       instructions[0x69] = new Instruction("LD L, C", 0x69, 1, (value) => registers.L = registers.C);
@@ -124,7 +124,7 @@ namespace GameGirl
       instructions[0x6B] = new Instruction("LD L, E", 0x6B, 1, (value) => registers.L = registers.E);
       instructions[0x6C] = new Instruction("LD L, H", 0x6C, 1, (value) => registers.L = registers.H);
       instructions[0x6D] = new Instruction("LD L, L", 0x6D, 1, (value) => registers.L = registers.L);
-      instructions[0x6E] = new Instruction("LD L, [HL]", 0x6E, 1, (value) => registers.L = mmu.GetByte(registers.HL));
+      instructions[0x6E] = new Instruction("LD L, [HL]", 0x6E, 1, (value) => registers.L = mmu.ReadByte(registers.HL));
       instructions[0x6F] = new Instruction("LD L, A", 0x6F, 1, (value) => registers.L = registers.A);
 
       instructions[0x60] = new Instruction("LD H, B", 0x60, 1, (value) => mmu.WriteByte(registers.HL, registers.B));
@@ -141,7 +141,7 @@ namespace GameGirl
       instructions[0x6B] = new Instruction("LD A, E", 0x6B, 1, (value) => registers.A = registers.E);
       instructions[0x6C] = new Instruction("LD A, H", 0x6C, 1, (value) => registers.A = registers.H);
       instructions[0x6D] = new Instruction("LD A, L", 0x6D, 1, (value) => registers.A = registers.L);
-      instructions[0x6E] = new Instruction("LD A, [HL]", 0x6E, 1, (value) => registers.A = mmu.GetByte(registers.HL));
+      instructions[0x6E] = new Instruction("LD A, [HL]", 0x6E, 1, (value) => registers.A = mmu.ReadByte(registers.HL));
       instructions[0x6F] = new Instruction("LD A, A", 0x6F, 1, (value) => registers.A = registers.A);
 
       instructions[0x80] = new Instruction("ADD A b", 0x80, 1, (value) => ADD(registers.B));
@@ -150,7 +150,7 @@ namespace GameGirl
       instructions[0x83] = new Instruction("ADD A e", 0x83, 1, (value) => ADD(registers.E));
       instructions[0x84] = new Instruction("ADD A h", 0x84, 1, (value) => ADD(registers.H));
       instructions[0x85] = new Instruction("ADD A l", 0x85, 1, (value) => ADD(registers.L));
-      instructions[0x86] = new Instruction("ADD A [hl]", 0x86, 1, (value) => ADD(mmu.GetByte(registers.HL)));
+      instructions[0x86] = new Instruction("ADD A [hl]", 0x86, 1, (value) => ADD(mmu.ReadByte(registers.HL)));
       instructions[0x87] = new Instruction("ADD A a", 0x87, 1, (value) => ADD(registers.A));
       instructions[0x88] = new Instruction("ADC A b", 0x88, 1, (value) => ADC(registers.B));
       instructions[0x89] = new Instruction("ADC A c", 0x89, 1, (value) => ADC(registers.C));
@@ -158,7 +158,7 @@ namespace GameGirl
       instructions[0x8B] = new Instruction("ADC A e", 0x8B, 1, (value) => ADC(registers.E));
       instructions[0x8C] = new Instruction("ADC A h", 0x8C, 1, (value) => ADC(registers.H));
       instructions[0x8D] = new Instruction("ADC A l", 0x8D, 1, (value) => ADC(registers.L));
-      instructions[0x8E] = new Instruction("ADC A [hl]", 0x8E, 1, (value) => ADC(mmu.GetByte(registers.HL)));
+      instructions[0x8E] = new Instruction("ADC A [hl]", 0x8E, 1, (value) => ADC(mmu.ReadByte(registers.HL)));
       instructions[0x8F] = new Instruction("ADC A a", 0x8F, 1, (value) => ADC(registers.A));
 
       instructions[0x90] = new Instruction("SUB A b", 0x90, 1, (value) => SUB(registers.B));
@@ -167,7 +167,7 @@ namespace GameGirl
       instructions[0x93] = new Instruction("SUB A e", 0x93, 1, (value) => SUB(registers.E));
       instructions[0x94] = new Instruction("SUB A h", 0x94, 1, (value) => SUB(registers.H));
       instructions[0x95] = new Instruction("SUB A l", 0x95, 1, (value) => SUB(registers.L));
-      instructions[0x96] = new Instruction("SUB A [hl]", 0x96, 1, (value) => SUB(mmu.GetByte(registers.HL)));
+      instructions[0x96] = new Instruction("SUB A [hl]", 0x96, 1, (value) => SUB(mmu.ReadByte(registers.HL)));
       instructions[0x97] = new Instruction("SUB A a", 0x97, 1, (value) => SUB(registers.A));
       instructions[0x98] = new Instruction("SBC A b", 0x98, 1, (value) => SBC(registers.B));
       instructions[0x99] = new Instruction("SBC A c", 0x99, 1, (value) => SBC(registers.C));
@@ -175,7 +175,7 @@ namespace GameGirl
       instructions[0x9B] = new Instruction("SBC A e", 0x9B, 1, (value) => SBC(registers.E));
       instructions[0x9C] = new Instruction("SBC A h", 0x9C, 1, (value) => SBC(registers.H));
       instructions[0x9D] = new Instruction("SBC A l", 0x9D, 1, (value) => SBC(registers.L));
-      instructions[0x9E] = new Instruction("SBC A [hl]", 0x9E, 1, (value) => SBC(mmu.GetByte(registers.HL)));
+      instructions[0x9E] = new Instruction("SBC A [hl]", 0x9E, 1, (value) => SBC(mmu.ReadByte(registers.HL)));
       instructions[0x9F] = new Instruction("SBC A a", 0x9F, 1, (value) => SBC(registers.A));
 
       instructions[0xA8] = new Instruction("XOR B", 0xA8, 1, (value) => XOR(registers.B));
@@ -184,7 +184,7 @@ namespace GameGirl
       instructions[0xAB] = new Instruction("XOR E", 0xAB, 1, (value) => XOR(registers.E));
       instructions[0xAC] = new Instruction("XOR H", 0xAC, 1, (value) => XOR(registers.H));
       instructions[0xAD] = new Instruction("XOR L", 0xAD, 1, (value) => XOR(registers.L));
-      instructions[0xAE] = new Instruction("XOR [hl]", 0xAE, 1, (value) => XOR(mmu.GetByte(registers.HL)));
+      instructions[0xAE] = new Instruction("XOR [hl]", 0xAE, 1, (value) => XOR(mmu.ReadByte(registers.HL)));
       instructions[0xAF] = new Instruction("XOR A", 0xAF, 1, (value) => XOR(registers.A));
 
       instructions[0xB8] = new Instruction("CP B", 0xB8, 1, (value) => CP(registers.B));
@@ -193,7 +193,7 @@ namespace GameGirl
       instructions[0xBB] = new Instruction("CP E", 0xBB, 1, (value) => CP(registers.E));
       instructions[0xBC] = new Instruction("CP H", 0xBC, 1, (value) => CP(registers.H));
       instructions[0xBD] = new Instruction("CP L", 0xBD, 1, (value) => CP(registers.L));
-      instructions[0xBE] = new Instruction("CP [HL]", 0xBE, 1, (value) => CP(mmu.GetByte(registers.HL)));
+      instructions[0xBE] = new Instruction("CP [HL]", 0xBE, 1, (value) => CP(mmu.ReadByte(registers.HL)));
       instructions[0xBF] = new Instruction("CP A", 0xBF, 1, (value) => CP(registers.A));
 
       instructions[0xC2] = new Instruction("JP NZ, a16", 0xC2, 3, (value) => JP(value, () => !registers.GetFlag(Flag.ZERO)));

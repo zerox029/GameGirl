@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Exceptions;
 
 namespace GameGirl
 {
@@ -10,28 +11,27 @@ namespace GameGirl
 
     public void Boot()
     {
-      Init();
-      LoadRom("roms/tetris.gb");
+      Init("roms/tetris.gb");
 
       cpu.EmulationLoop();
     }
 
-    private void Init()
+    private void Init(String romFilePath)
     {
-      mmu = new MMU();
+      mmu = new MMU(LoadRom(romFilePath));
       cpu = new CPU(mmu);
     }
 
-    private void LoadRom(string filePath)
+    private byte[] LoadRom(String filePath)
     {
-      byte[] byteArray = File.ReadAllBytes(filePath);
-      ushort currentPosition = 0;
+      byte[] rom = File.ReadAllBytes(filePath);
 
-      foreach (byte b in byteArray)
+      if (rom.Length != 0x8000)
       {
-        mmu.WriteByte(currentPosition, b);
-        currentPosition++;
+        throw new InvalidRomException(rom.Length);
       }
+
+      return rom;
     }
   }
 }
