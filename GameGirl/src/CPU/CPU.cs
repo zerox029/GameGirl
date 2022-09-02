@@ -52,8 +52,7 @@ namespace GameGirl
         ushort upperNibble = (ushort)(mmu.ReadByte((ushort)(registers.PC + 2)) << 8);
         ushort lowerNibble = mmu.ReadByte((ushort)(registers.PC + 1));
 
-        ushort arg = (ushort)(upperNibble + lowerNibble);
-        return arg;
+        return (ushort)(upperNibble + lowerNibble);
       }
       else
       {

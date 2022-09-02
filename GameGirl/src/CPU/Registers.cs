@@ -14,8 +14,6 @@ namespace GameGirl
     public ushort SP { get; set; } //Stack Pointer
     public ushort PC { get; set; } = Utils.START_ADDRESS; // Program Counter
 
-    public bool IME { get; set; } // Interupt master enable
-
     public ushort AF
     {
       get

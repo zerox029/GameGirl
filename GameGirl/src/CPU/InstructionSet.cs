@@ -434,7 +434,8 @@ namespace GameGirl
     /// Affected flags: none
     private void DI()
     {
-      registers.IME = false;
+      //TODO: Verify if this is correct
+      mmu.WriteByte(0xFFFF, 0);
     }
 
     /// Enable Interrupts by clearing the IME flag.
@@ -442,7 +443,8 @@ namespace GameGirl
     /// Affected flags: none
     private void EI()
     {
-      registers.IME = true;
+      //TODO: Verify if this is correct
+      mmu.WriteByte(0xFFFF, 1);
     }
 
     /// No OPeration
