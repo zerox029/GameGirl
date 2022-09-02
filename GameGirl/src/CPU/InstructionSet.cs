@@ -24,35 +24,56 @@ namespace GameGirl
       instructions = new Instruction[256];
 
       instructions[0x00] = new Instruction("NOP", 0x00, 1, (value) => NOP());
+      instructions[0x01] = new Instruction("LD BC, d16", 0x01, 3, (value) => registers.BC = value);
+      instructions[0x02] = new Instruction("LD [BC], A", 0x02, 1, (value) => mmu.WriteByte(registers.BC, registers.A));
       instructions[0x03] = new Instruction("INC BC", 0x03, 1, (value) => INC(registers, reg => registers.BC));
       instructions[0x04] = new Instruction("INC B", 0x04, 1, (value) => INC(registers, reg => reg.B));
       instructions[0x05] = new Instruction("DEC B", 0x05, 1, (value) => DEC(registers, reg => reg.B));
+      instructions[0x06] = new Instruction("LD B, d8", 0x06, 2, (value) => registers.B = (byte)value);
+      instructions[0x0A] = new Instruction("LD A, [BC]", 0x0A, 1, (value) => registers.A = mmu.GetByte(registers.BC));
       instructions[0x0B] = new Instruction("DEC BC", 0x0B, 1, (value) => DEC(registers, reg => reg.BC));
       instructions[0x0C] = new Instruction("INC C", 0x0C, 1, (value) => INC(registers, reg => reg.C));
       instructions[0x0D] = new Instruction("DEC C", 0x0D, 1, (value) => DEC(registers, reg => reg.C));
+      instructions[0x0E] = new Instruction("LD C, d8", 0x0E, 2, (value) => registers.C = (byte)value);
 
+      instructions[0x11] = new Instruction("LD DE, d16", 0x11, 3, (value) => registers.DE = value);
+      instructions[0x12] = new Instruction("LD [DE], A", 0x12, 1, (value) => mmu.WriteByte(registers.DE, registers.A));
       instructions[0x13] = new Instruction("INC DE", 0x13, 1, (value) => INC(registers, reg => registers.DE));
       instructions[0x14] = new Instruction("INC D", 0x14, 1, (value) => INC(registers, reg => reg.D));
       instructions[0x15] = new Instruction("DEC D", 0x15, 1, (value) => DEC(registers, reg => reg.D));
+      instructions[0x16] = new Instruction("LD D, d8", 0x16, 2, (value) => registers.D = (byte)value);
+      instructions[0x1A] = new Instruction("LD A, [DE]", 0x1A, 1, (value) => registers.A = mmu.GetByte(registers.DE));
       instructions[0x1B] = new Instruction("DEC DE", 0x1B, 1, (value) => DEC(registers, reg => reg.DE));
-      instructions[0x1C] = new Instruction("INC D", 0x1C, 1, (value) => INC(registers, reg => reg.E));
-      instructions[0x1D] = new Instruction("DEC D", 0x1D, 1, (value) => DEC(registers, reg => reg.E));
+      instructions[0x1C] = new Instruction("INC E", 0x1C, 1, (value) => INC(registers, reg => reg.E));
+      instructions[0x1D] = new Instruction("DEC E", 0x1D, 1, (value) => DEC(registers, reg => reg.E));
+      instructions[0x1E] = new Instruction("LD E, d8", 0x1E, 2, (value) => registers.E = (byte)value);
 
+      instructions[0x20] = new Instruction("JR NZ, s8", 0x20, 2, (value) => JR((sbyte)value, () => registers.GetFlag(Flag.ZERO) == false));
+      instructions[0x21] = new Instruction("LD HL, d16", 0x21, 3, (value) => registers.HL = value);
+      instructions[0x22] = new Instruction("LD [HL+], A", 0x22, 1, (value) => { mmu.WriteByte(registers.HL, registers.A); registers.HL++; });
       instructions[0x23] = new Instruction("INC HL", 0x23, 1, (value) => INC(registers, reg => registers.HL));
       instructions[0x24] = new Instruction("INC H", 0x24, 1, (value) => INC(registers, reg => reg.H));
       instructions[0x25] = new Instruction("DEC H", 0x25, 1, (value) => DEC(registers, reg => reg.H));
+      instructions[0x26] = new Instruction("LD H, d8", 0x26, 2, (value) => registers.H = (byte)value);
+      instructions[0x2A] = new Instruction("LD A, [HL+]", 0x2A, 1, (value) => { registers.A = mmu.GetByte(registers.HL); registers.HL++; });
       instructions[0x2B] = new Instruction("DEC HL", 0x2B, 1, (value) => DEC(registers, reg => reg.HL));
       instructions[0x2C] = new Instruction("INC L", 0x2C, 1, (value) => INC(registers, reg => reg.L));
       instructions[0x2D] = new Instruction("DEC L", 0x2D, 1, (value) => DEC(registers, reg => reg.L));
+      instructions[0x2E] = new Instruction("LD L, d8", 0x2E, 2, (value) => registers.L = (byte)value);
       instructions[0x2F] = new Instruction("CPL", 0x2F, 1, (value) => CPL());
 
+      instructions[0x31] = new Instruction("LD SP, d16", 0x31, 3, (value) => registers.SP = value);
+      instructions[0x32] = new Instruction("LD [HL-], A", 0x32, 1, (value) => { mmu.WriteByte(registers.HL, registers.A); registers.HL--; });
       instructions[0x33] = new Instruction("INC SP", 0x33, 1, (value) => INC(registers, reg => registers.SP));
       instructions[0x34] = new Instruction("INC [HL]", 0x34, 1, (value) => INC(registers, reg => mmu.GetByte(registers.HL)));
       instructions[0x35] = new Instruction("DEC [HL]", 0x35, 1, (value) => DEC(registers, reg => mmu.GetByte(registers.HL)));
+      instructions[0x36] = new Instruction("LD [HL], d8", 0x36, 2, (value) => mmu.WriteByte(registers.HL, (byte)value));
       instructions[0x37] = new Instruction("SCF", 0x37, 1, (value) => SCF());
+      instructions[0x3A] = new Instruction("LD A, [HL-]", 0x3A, 1, (value) => { registers.A = mmu.GetByte(registers.HL); registers.HL--; });
       instructions[0x3B] = new Instruction("DEC SP", 0x3B, 1, (value) => DEC(registers, reg => reg.SP));
       instructions[0x3C] = new Instruction("INC A", 0x3C, 1, (value) => INC(registers, reg => reg.A));
       instructions[0x3D] = new Instruction("DEC A", 0x3D, 1, (value) => DEC(registers, reg => reg.A));
+      instructions[0x3E] = new Instruction("LD A, d8", 0x3E, 2, (value) => registers.A = (byte)value);
       instructions[0x3F] = new Instruction("CCF", 0x3F, 1, (value) => CCF());
 
       instructions[0x40] = new Instruction("LD B, B", 0x40, 1, (value) => registers.B = registers.B);
@@ -157,6 +178,15 @@ namespace GameGirl
       instructions[0x9E] = new Instruction("SBC A [hl]", 0x9E, 1, (value) => SBC(mmu.GetByte(registers.HL)));
       instructions[0x9F] = new Instruction("SBC A a", 0x9F, 1, (value) => SBC(registers.A));
 
+      instructions[0xA8] = new Instruction("XOR B", 0xA8, 1, (value) => XOR(registers.B));
+      instructions[0xA9] = new Instruction("XOR C", 0xA9, 1, (value) => XOR(registers.C));
+      instructions[0xAA] = new Instruction("XOR D", 0xAA, 1, (value) => XOR(registers.D));
+      instructions[0xAB] = new Instruction("XOR E", 0xAB, 1, (value) => XOR(registers.E));
+      instructions[0xAC] = new Instruction("XOR H", 0xAC, 1, (value) => XOR(registers.H));
+      instructions[0xAD] = new Instruction("XOR L", 0xAD, 1, (value) => XOR(registers.L));
+      instructions[0xAE] = new Instruction("XOR [hl]", 0xAE, 1, (value) => XOR(mmu.GetByte(registers.HL)));
+      instructions[0xAF] = new Instruction("XOR A", 0xAF, 1, (value) => XOR(registers.A));
+
       instructions[0xB8] = new Instruction("CP B", 0xB8, 1, (value) => CP(registers.B));
       instructions[0xB9] = new Instruction("CP C", 0xB9, 1, (value) => CP(registers.C));
       instructions[0xBA] = new Instruction("CP D", 0xBA, 1, (value) => CP(registers.D));
@@ -173,6 +203,10 @@ namespace GameGirl
       instructions[0xD2] = new Instruction("JP NC, a16", 0xD2, 3, (value) => JP(value, () => !registers.GetFlag(Flag.CARRY)));
       instructions[0xDA] = new Instruction("JP NC, a16", 0xDA, 3, (value) => JP(value, () => registers.GetFlag(Flag.CARRY)));
 
+      instructions[0xE0] = new Instruction("LD [a8], A", 0xE0, 2, null);
+
+      instructions[0xF3] = new Instruction("DI", 0xF3, 1, (value) => DI());
+      instructions[0xFB] = new Instruction("EI", 0xFB, 1, (value) => EI());
       instructions[0xFF] = new Instruction("RST 7", 0xFF, 1, null);
     }
 
@@ -334,6 +368,21 @@ namespace GameGirl
       SetFlags(oldValue, (byte)(value + carry), true);
     }
 
+
+    /// Bitwise XOR between the value in r8 and A
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: Z
+    private void XOR(byte value)
+    {
+      byte result = (byte)(registers.A | value);
+      registers.A = result;
+
+      if (result == 0)
+      {
+        registers.SetFlag(Flag.SUBSTRACTION);
+      }
+    }
+
     #endregion
 
     #region Jumps and Subroutines
@@ -357,9 +406,44 @@ namespace GameGirl
       }
     }
 
+    /// Relative Jump by adding e8 to the address of the instruction following the JR. To clarify, an operand of 0 is equivalent to no jumping.
+    /// Cycles: 3, Bytes: 2
+    /// Affected flags: none
+    private void JR(sbyte value)
+    {
+      registers.PC += (ushort)(value);
+    }
+
+    /// Relative Jump by adding e8 to the current address if condition cc is met
+    /// Cycles 3 taken / 2 untaken
+    /// Affected flags: none
+    private void JR(sbyte value, Func<bool> condition)
+    {
+      if (condition.Invoke())
+      {
+        JR(value);
+      }
+    }
+
     #endregion
 
     #region Miscellaneous Instructions
+
+    /// Disable Interrupts by clearing the IME flag.
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: none
+    private void DI()
+    {
+      registers.IME = false;
+    }
+
+    /// Enable Interrupts by clearing the IME flag.
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: none
+    private void EI()
+    {
+      registers.IME = true;
+    }
 
     /// No OPeration
     /// Cycles: 1, Bytes: 1
