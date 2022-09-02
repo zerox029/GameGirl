@@ -208,6 +208,7 @@ namespace GameGirl
       instructions[0xF0] = new Instruction("LD A, [a8]", 0xF0, 2, (value) => registers.A = mmu.ReadByte((ushort)(0xFF00 + value)));
       instructions[0xF3] = new Instruction("DI", 0xF3, 1, (value) => DI());
       instructions[0xFB] = new Instruction("EI", 0xFB, 1, (value) => EI());
+      instructions[0xFE] = new Instruction("FE", 0xFE, 2, (value) => CP((byte)value));
       instructions[0xFF] = new Instruction("RST 7", 0xFF, 1, null);
     }
 
