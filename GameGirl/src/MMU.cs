@@ -33,6 +33,22 @@ namespace GameGirl
     public byte interruptEnableRegister { get; set; }
 
 
+    public MMU()
+    {
+      romBank = new byte[ROM_BANK_SIZE];
+      videoRAM = new byte[VIDEO_RAM_SIZE];
+      externalRAM = new byte[EXTERNAL_RAM_SIZE];
+
+      workRAM = new byte[WORK_RAM_SIZE];
+      echoRAM = new byte[WORK_RAM_SIZE];
+
+      spriteAttributeTable = new byte[SPRITE_ATTRIBUTION_TABLE_SIZE];
+
+      IO = new byte[IO_SIZE];
+
+      highRAM = new byte[HIGH_RAM_SIZE];
+    }
+
     public MMU(byte[] rom)
     {
       romBank = rom;
