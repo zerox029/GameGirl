@@ -203,8 +203,9 @@ namespace GameGirl
       instructions[0xD2] = new Instruction("JP NC, a16", 0xD2, 3, (value) => JP(value, () => !registers.GetFlag(Flag.CARRY)));
       instructions[0xDA] = new Instruction("JP NC, a16", 0xDA, 3, (value) => JP(value, () => registers.GetFlag(Flag.CARRY)));
 
-      instructions[0xE0] = new Instruction("LD [a8], A", 0xE0, 2, null);
+      instructions[0xE0] = new Instruction("LD [a8], A", 0xE0, 2, (value) => mmu.WriteByte((ushort)((ushort)0xFF00 + (ushort)value), registers.A));
 
+      instructions[0xF0] = new Instruction("LD A, [a8]", 0xF0, 2, (value) => registers.A = mmu.ReadByte((ushort)(0xFF00 + value)));
       instructions[0xF3] = new Instruction("DI", 0xF3, 1, (value) => DI());
       instructions[0xFB] = new Instruction("EI", 0xFB, 1, (value) => EI());
       instructions[0xFF] = new Instruction("RST 7", 0xFF, 1, null);
