@@ -9,6 +9,9 @@ namespace GameGirl
 
     MMU mmu;
 
+    private bool isInDebugMode = false;
+    private ushort startDebugAddress = 0x235;
+
     public CPU(MMU mmu)
     {
       this.registers = new Registers();
@@ -20,17 +23,18 @@ namespace GameGirl
     {
       while (true)
       {
-        ushort pc = registers.PC;
         byte currentOpcode = mmu.ReadByte(registers.PC);
         byte instructionLength = instructionSet.GetInstructionLength(currentOpcode);
         ushort argument = GetArgumentForCurrentOpcode((byte)(instructionLength - 1));
 
-        Console.Write("0x{0:X}: ", pc);
+        if (registers.PC == startDebugAddress) isInDebugMode = true;
+
+        if (isInDebugMode) Console.Write("0x{0:X}: ", registers.PC);
 
         try
         {
           registers.PC += instructionLength;
-          instructionSet.RunInstruction(currentOpcode, argument);
+          instructionSet.RunInstruction(currentOpcode, argument, isInDebugMode);
         }
         catch (Exception exception)
         {

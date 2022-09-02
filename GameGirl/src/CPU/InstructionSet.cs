@@ -237,14 +237,14 @@ namespace GameGirl
       instruction.Handler.Invoke(0);
     }
 
-    public void RunInstruction(byte opcode, ushort argument)
+    public void RunInstruction(byte opcode, ushort argument, bool debug)
     {
       Instruction instruction = instructions[opcode];
 
       if (instruction == null) throw new UnknownOpcodeException(opcode);
       else if (instruction.Handler == null) throw new UnknownOpcodeException(instruction);
 
-      Console.WriteLine("Executing opcode {0:X} ({1})", opcode, instruction.Name);
+      if (debug) Console.WriteLine("Executing opcode {0:X} ({1})", opcode, instruction.Name);
 
       instruction.Handler.Invoke(argument);
     }
