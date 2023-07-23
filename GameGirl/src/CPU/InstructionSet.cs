@@ -237,16 +237,34 @@ namespace GameGirl
       instruction.Handler.Invoke(0);
     }
 
-    public void RunInstruction(byte opcode, ushort argument, bool debug)
+    public byte RunInstruction(byte opcode, ushort argument, bool debug)
     {
       Instruction instruction = instructions[opcode];
 
       if (instruction == null) throw new UnknownOpcodeException(opcode);
       else if (instruction.Handler == null) throw new UnknownOpcodeException(instruction);
 
-      if (debug) Console.WriteLine("Executing opcode {0:X} ({1})", opcode, instruction.Name);
+      if (debug)
+      {
+        Console.WriteLine("Next opcode {0:X} ({1}) with argument {2:X4}", opcode, instruction.Name, argument);
+
+        if (false)
+        {
+          ConsoleKeyInfo input = Console.ReadKey();
+
+          if (input.KeyChar == 'r')
+          {
+            Console.WriteLine("\nAF = {0:X4}\nBC = {1:X4}\nDE = {2:X4}\nHL = {3:X4}\nSP = {4:X4}\nPC = {5:X4}",
+              registers.AF, registers.BC, registers.DE, registers.HL, registers.SP, registers.PC);
+            Console.WriteLine("Z = {0}\nN = {1}\nH = {2}\nC = {3}",
+              registers.GetFlag(Flag.ZERO), registers.GetFlag(Flag.SUBSTRACTION), registers.GetFlag(Flag.HALF_CARRY), registers.GetFlag(Flag.CARRY));
+          }
+        }
+      }
 
       instruction.Handler.Invoke(argument);
+
+      return instruction.Cycles;
     }
 
     #region 8-bit Arithmetic and Logic Instructions
@@ -375,12 +393,13 @@ namespace GameGirl
     /// Affected flags: Z
     private void XOR(byte value)
     {
-      byte result = (byte)(registers.A | value);
+      byte result = (byte)(registers.A ^ value);
       registers.A = result;
 
+      registers.ClearAllFlags();
       if (result == 0)
       {
-        registers.SetFlag(Flag.SUBSTRACTION);
+        registers.SetFlag(Flag.ZERO);
       }
     }
 
@@ -453,7 +472,7 @@ namespace GameGirl
     /// Affected flags: none
     private void NOP() { }
 
-    /// Subtract a specified value from A and set flags accordingly, but don't store the result. This is useful for ComParing values
+    /// Subtract a specified value from A and set flags accordingly, but don't store the result. This is useful for Comparing values
     /// Cycles: 1, Bytes: 1
     /// Affected flags: ZNHC
     private void CP(byte value)
@@ -461,7 +480,10 @@ namespace GameGirl
       byte oldValue = registers.A;
       int result = registers.A - value;
 
-      SetFlags(oldValue, value, true);
+      if (result == 0) registers.SetFlag(Flag.ZERO);
+      registers.SetFlag(Flag.SUBSTRACTION);
+
+      //SetFlags(oldValue, value, true);
     }
 
     /// ComPLement accumulator (A = ~A)

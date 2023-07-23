@@ -25,12 +25,11 @@ namespace GameGirl
     //this would otherwise have to be done through the bootROM
     public void BootUpSequence()
     {
-
       registers.AF = 0x01B0;
       registers.BC = 0x0013;
       registers.DE = 0x00D8;
       registers.HL = 0x014D;
-      registers.PC = 0x100;
+      registers.PC = 0x0100;
       registers.SP = 0xFFFE;
 
       mmu.WriteByte(0xFF10, 0x80);
@@ -56,6 +55,7 @@ namespace GameGirl
 
     public void EmulationLoop()
     {
+      int totalCycles = 0;
       while (true)
       {
         byte currentOpcode = mmu.ReadByte(registers.PC);
@@ -67,7 +67,11 @@ namespace GameGirl
         try
         {
           registers.PC += instructionLength;
-          instructionSet.RunInstruction(currentOpcode, argument, isInDebugMode);
+
+          byte executedCycles = instructionSet.RunInstruction(currentOpcode, argument, isInDebugMode);
+          totalCycles += executedCycles;
+
+          timer.Update(executedCycles);
         }
         catch (Exception exception)
         {

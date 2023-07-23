@@ -12,7 +12,7 @@ namespace GameGirl
     public byte L { get; set; }
 
     public ushort SP { get; set; } //Stack Pointer
-    public ushort PC { get; set; }// Program Counter
+    public ushort PC { get; set; } // Program Counter
 
     public ushort AF
     {
@@ -27,7 +27,7 @@ namespace GameGirl
       set
       {
         A = (byte)(value >> 8);
-        B = (byte)(value);
+        F = (byte)(value);
       }
     }
 

@@ -12,7 +12,7 @@ namespace GameGirl
       this.mmu = mmu;
     }
 
-    public async void Update(int cycles)
+    public void Update(int cycles)
     {
       DoDivideRegister(cycles);
 
