@@ -247,7 +247,8 @@ namespace GameGirl
       if (debug)
       {
         Logger.Log("-- Current register status --");
-        Logger.Log($"AF = {registers.AF:X4}\nBC = {registers.BC:X4}\nDE = {registers.DE:X4}\nHL = {registers.HL:X4}\nSP = {registers.SP:X4}\nPC = {registers.PC:X4}");
+        Logger.Log($"AF = {registers.AF:X4}\nBC = {registers.BC:X4}\nDE = {registers.DE:X4}\nHL = {registers.HL:X4}\nSP = {registers.SP:X4}\nPC = {registers.PC - instruction.Length:X4}");
+        Logger.Log($"Z = {registers.GetFlag(Flag.ZERO)}\nN = {registers.GetFlag(Flag.SUBSTRACTION)}\nH = {registers.GetFlag(Flag.HALF_CARRY)}\nC = {registers.GetFlag(Flag.CARRY)}");
         Logger.LogWithPrint($"Next opcode ${opcode:X4} ({instruction.Name}) with argument ${argument:X4}\n");
 
 
@@ -283,7 +284,10 @@ namespace GameGirl
 
       registers.A = (byte)result;
 
-      SetFlags(oldValue, value, false);
+      CheckAndSetZFlag((byte)result);
+      CheckAndSetHFlagAddition(oldValue, value);
+      CheckAndSetCFlagAddition(oldValue, value);
+      registers.ClearFlag(Flag.SUBSTRACTION);
     }
 
     /// Add a specified byte value to register A plus the carry flag
@@ -297,7 +301,10 @@ namespace GameGirl
 
       registers.A = (byte)result;
 
-      SetFlags(oldValue, (byte)(value + carry), false);
+      CheckAndSetZFlag((byte)result);
+      CheckAndSetHFlagAddition(oldValue, value, carry);
+      CheckAndSetCFlagAddition(oldValue, value, carry);
+      registers.ClearFlag(Flag.SUBSTRACTION);
     }
 
     /// Increase the value in a specified register by 1
@@ -313,7 +320,9 @@ namespace GameGirl
 
       prop.SetValue(target, newValue, null);
 
-      SetFlags(oldValue, 1, false);
+      CheckAndSetZFlag(newValue);
+      CheckAndSetHFlagAddition(oldValue, 1);
+      registers.ClearFlag(Flag.SUBSTRACTION);
     }
 
     /// Increase the value in a specified register pair by 1
@@ -329,7 +338,9 @@ namespace GameGirl
 
       prop.SetValue(target, newValue, null);
 
-      SetFlags(oldValue, 1, false);
+      CheckAndSetZFlag(newValue);
+      CheckAndSetHFlagAddition(oldValue, 1);
+      registers.ClearFlag(Flag.SUBSTRACTION);
     }
 
     /// Decrease the value in a specified register by 1
@@ -345,7 +356,9 @@ namespace GameGirl
 
       prop.SetValue(target, newValue, null);
 
-      SetFlags(oldValue, 1, true);
+      CheckAndSetZFlag(newValue);
+      CheckAndSetHFlagSubstraction(oldValue, 1);
+      registers.SetFlag(Flag.SUBSTRACTION);
     }
 
     /// Decrease the value in a specified register by 1
@@ -361,7 +374,9 @@ namespace GameGirl
 
       prop.SetValue(target, newValue, null);
 
-      SetFlags(oldValue, 1, true);
+      CheckAndSetZFlag(newValue);
+      CheckAndSetHFlagSubstraction(oldValue, 1);
+      registers.SetFlag(Flag.SUBSTRACTION);
     }
 
     /// Substract a specified byte value from register A
@@ -374,7 +389,10 @@ namespace GameGirl
 
       registers.A = (byte)result;
 
-      SetFlags(oldValue, value, true);
+      CheckAndSetZFlag((byte)result);
+      CheckAndSetHFlagSubstraction(oldValue, value);
+      CheckAndSetCFlagSubstraction(oldValue, value);
+      registers.SetFlag(Flag.SUBSTRACTION);
     }
 
     /// Subtract a specified value and the carry flag from A
@@ -388,7 +406,10 @@ namespace GameGirl
 
       registers.A = (byte)result;
 
-      SetFlags(oldValue, (byte)(value + carry), true);
+      CheckAndSetZFlag((byte)result);
+      CheckAndSetHFlagSubstraction(oldValue, value, carry);
+      CheckAndSetCFlagSubstraction(oldValue, value, carry);
+      registers.SetFlag(Flag.SUBSTRACTION);
     }
 
 
@@ -524,105 +545,19 @@ namespace GameGirl
 
     #endregion
 
-    private void SetFlags(byte a, byte b, bool operationWasSubstraction)
+    private void CheckAndSetZFlag(ushort value)
     {
-      if (operationWasSubstraction)
+      if (value == 0)
       {
-        registers.SetFlag(Flag.SUBSTRACTION);
-
-        CheckAndSetCarryFlagForSubstraction(a, b);
-        CheckAndSetHalfCarryFlagForSubstraction(a, b);
-
-        if (a - b == 0)
-        {
-          registers.SetFlag(Flag.ZERO);
-        }
-        else
-        {
-          registers.ClearFlag(Flag.ZERO);
-        }
+        registers.SetFlag(Flag.ZERO);
       }
       else
       {
-        registers.ClearFlag(Flag.SUBSTRACTION);
-
-        CheckAndSetCarryFlagForAddition(a, b);
-        CheckAndSetHalfCarryFlagForAddition(a, b);
-
-        byte val = (byte)(a + b);
-        if ((byte)(a + b) == 0)
-        {
-          registers.SetFlag(Flag.ZERO);
-        }
-        else
-        {
-          registers.ClearFlag(Flag.ZERO);
-        }
+        registers.ClearFlag(Flag.ZERO);
       }
     }
 
-    private void SetFlags(ushort a, ushort b, bool operationWasSubstraction)
-    {
-      if (operationWasSubstraction)
-      {
-        registers.SetFlag(Flag.SUBSTRACTION);
-
-        CheckAndSetCarryFlagForSubstraction(a, b);
-        CheckAndSetHalfCarryFlagForSubstraction(a, b);
-
-        if (a - b == 0)
-        {
-          registers.SetFlag(Flag.ZERO);
-        }
-        else
-        {
-          registers.ClearFlag(Flag.ZERO);
-        }
-      }
-      else
-      {
-        registers.ClearFlag(Flag.SUBSTRACTION);
-
-        CheckAndSetCarryFlagForAddition(a, b);
-        CheckAndSetHalfCarryFlagForAddition(a, b);
-
-        ushort val = (ushort)(a + b);
-        if ((ushort)(a + b) == 0)
-        {
-          registers.SetFlag(Flag.ZERO);
-        }
-        else
-        {
-          registers.ClearFlag(Flag.ZERO);
-        }
-      }
-    }
-
-    private void CheckAndSetCarryFlagForAddition(ushort a, ushort b)
-    {
-      if (a + b > 0xFF)
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
-      else
-      {
-        registers.ClearFlag(Flag.CARRY);
-      }
-    }
-
-    private void CheckAndSetCarryFlagForSubstraction(ushort a, ushort b)
-    {
-      if (a < b)
-      {
-        registers.SetFlag(Flag.CARRY);
-      }
-      else
-      {
-        registers.ClearFlag(Flag.CARRY);
-      }
-    }
-
-    private void CheckAndSetHalfCarryFlagForAddition(ushort a, ushort b)
+    private void CheckAndSetHFlagAddition(byte a, byte b)
     {
       if ((((a & 0xF) + (b & 0xF)) & 0x10) == 0x10)
       {
@@ -634,7 +569,32 @@ namespace GameGirl
       }
     }
 
-    private void CheckAndSetHalfCarryFlagForSubstraction(ushort a, ushort b)
+    private void CheckAndSetHFlagAddition(byte a, byte b, int carry)
+    {
+      if ((((a & 0xF) + (b & 0xF) + (carry & 0xF)) & 0x10) == 0x10)
+      {
+        registers.SetFlag(Flag.HALF_CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.HALF_CARRY);
+      }
+    }
+
+
+    private void CheckAndSetHFlagAddition(ushort a, ushort b)
+    {
+      if ((((a & 0xFFF) + (b & 0xFFF)) & 0x1000) == 0x1000)
+      {
+        registers.SetFlag(Flag.HALF_CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.HALF_CARRY);
+      }
+    }
+
+    private void CheckAndSetHFlagSubstraction(byte a, byte b)
     {
       if ((((a & 0xF) - (b & 0xF)) & 0x10) == 0x10)
       {
@@ -643,6 +603,78 @@ namespace GameGirl
       else
       {
         registers.ClearFlag(Flag.HALF_CARRY);
+      }
+    }
+
+    private void CheckAndSetHFlagSubstraction(byte a, byte b, int carry)
+    {
+      if ((((a & 0xF) - (b & 0xF) - (carry & 0xF)) & 0x10) == 0x10)
+      {
+        registers.SetFlag(Flag.HALF_CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.HALF_CARRY);
+      }
+    }
+
+    private void CheckAndSetHFlagSubstraction(ushort a, ushort b)
+    {
+      if ((((a & 0xFFF) - (b & 0xFFF)) & 0x1000) == 0x1000)
+      {
+        registers.SetFlag(Flag.HALF_CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.HALF_CARRY);
+      }
+    }
+
+    private void CheckAndSetCFlagAddition(ushort a, ushort b)
+    {
+      if (a + b > 0xFF)
+      {
+        registers.SetFlag(Flag.CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.CARRY);
+      }
+    }
+
+    private void CheckAndSetCFlagAddition(ushort a, ushort b, int carry)
+    {
+      if (a + b + carry > 0xFF)
+      {
+        registers.SetFlag(Flag.CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.CARRY);
+      }
+    }
+
+    private void CheckAndSetCFlagSubstraction(ushort a, ushort b)
+    {
+      if (a < b)
+      {
+        registers.SetFlag(Flag.CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.CARRY);
+      }
+    }
+
+    private void CheckAndSetCFlagSubstraction(ushort a, ushort b, int carry)
+    {
+      if (a < b + carry)
+      {
+        registers.SetFlag(Flag.CARRY);
+      }
+      else
+      {
+        registers.ClearFlag(Flag.CARRY);
       }
     }
   }
