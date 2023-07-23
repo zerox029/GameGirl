@@ -20,6 +20,8 @@ namespace GameGirl
     {
       mmu = new MMU(LoadRom(romFilePath));
       cpu = new CPU(mmu);
+
+      cpu.BootUpSequence();
     }
 
     private byte[] LoadRom(String filePath)

@@ -1,4 +1,3 @@
-using System;
 using Exceptions;
 using static GameGirl.Utils;
 namespace GameGirl
@@ -156,6 +155,24 @@ namespace GameGirl
       {
         throw new InvalidAddressException(address);
       }
+    }
+
+    public void IncrementByte(ushort address, byte increment)
+    {
+      byte currentValue = ReadByte(address);
+      WriteByte(address, (byte)(currentValue + increment));
+    }
+
+    public void DecrementByte(ushort address, byte decrement)
+    {
+      byte currentValue = ReadByte(address);
+      WriteByte(address, (byte)(currentValue - decrement));
+    }
+
+    public void CopyByte(byte address, byte copyAddress)
+    {
+      byte copyValue = ReadByte(copyAddress);
+      WriteByte(address, copyValue);
     }
   }
 }

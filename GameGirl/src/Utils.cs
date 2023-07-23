@@ -11,7 +11,15 @@ namespace GameGirl
     public static ushort IO_SIZE { get { return 0x80; } }
     public static ushort HIGH_RAM_SIZE { get { return 0x80; } }
 
-    public static double CLOCK_SPEED { get { return 2.194304f; } }
-    public static ushort START_ADDRESS { get { return 0x0100; } }
+    //Timer values
+    public static ushort DIVIDER_REGISTER_ADDRESS { get { return 0xFF04; } }
+    public static ushort TIMER_ADDRESS { get { return 0xFF05; } }
+    public static ushort TIMER_MODULATOR_ADDRESS { get { return 0xFF06; } }
+    public static ushort TIMER_CONTROLLER_ADDRESS { get { return 0xFF07; } }
+    public static int CLOCK_FREQUENCY_STATE_00 { get { return 4096; } }
+    public static int CLOCK_FREQUENCY_STATE_01 { get { return 262144; } }
+    public static int CLOCK_FREQUENCY_STATE_10 { get { return 65536; } }
+    public static int CLOCK_FREQUENCY_STATE_11 { get { return 16384; } }
+    public static int CLOCK_SPEED { get { return 4194304; } }
   }
 }

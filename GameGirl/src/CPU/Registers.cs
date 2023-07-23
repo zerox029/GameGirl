@@ -12,7 +12,7 @@ namespace GameGirl
     public byte L { get; set; }
 
     public ushort SP { get; set; } //Stack Pointer
-    public ushort PC { get; set; } = Utils.START_ADDRESS; // Program Counter
+    public ushort PC { get; set; }// Program Counter
 
     public ushort AF
     {
