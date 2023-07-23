@@ -80,26 +80,23 @@ namespace GameGirl
       }
     }
 
-    public void Cycle()
-    P{}
+    private ushort GetArgumentForCurrentOpcode(byte argumentLength)
+    {
+      if (argumentLength == 1)
+      {
+        return mmu.ReadByte((ushort)(registers.PC + 1));
+      }
+      else if (argumentLength == 2)
+      {
+        ushort upperNibble = (ushort)(mmu.ReadByte((ushort)(registers.PC + 2)) << 8);
+        ushort lowerNibble = mmu.ReadByte((ushort)(registers.PC + 1));
 
-  private ushort GetArgumentForCurrentOpcode(byte argumentLength)
-  {
-    if (argumentLength == 1)
-    {
-      return mmu.ReadByte((ushort)(registers.PC + 1));
-    }
-    else if (argumentLength == 2)
-    {
-      ushort upperNibble = (ushort)(mmu.ReadByte((ushort)(registers.PC + 2)) << 8);
-      ushort lowerNibble = mmu.ReadByte((ushort)(registers.PC + 1));
-
-      return (ushort)(upperNibble + lowerNibble);
-    }
-    else
-    {
-      return 0;
+        return (ushort)(upperNibble + lowerNibble);
+      }
+      else
+      {
+        return 0;
+      }
     }
   }
-}
 }
