@@ -56,10 +56,8 @@ namespace GameGirl
 
     public void EmulationLoop()
     {
-      int i = 0;
       while (true)
       {
-        i++;
         byte currentOpcode = mmu.ReadByte(registers.PC);
         byte instructionLength = instructionSet.GetInstructionLength(currentOpcode);
         ushort argument = GetArgumentForCurrentOpcode((byte)(instructionLength - 1));

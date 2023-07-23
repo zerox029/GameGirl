@@ -169,10 +169,10 @@ namespace GameGirl
       WriteByte(address, (byte)(currentValue - decrement));
     }
 
-    public void CopyByte(byte address, byte copyAddress)
+    public void CopyByte(byte to, byte from)
     {
-      byte copyValue = ReadByte(copyAddress);
-      WriteByte(address, copyValue);
+      byte copyValue = ReadByte(from);
+      WriteByte(to, copyValue);
     }
   }
 }
