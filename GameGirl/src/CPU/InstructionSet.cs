@@ -246,7 +246,11 @@ namespace GameGirl
 
       if (debug)
       {
-        Console.WriteLine("Next opcode {0:X} ({1}) with argument {2:X4}", opcode, instruction.Name, argument);
+        Logger.Log("-- Current register status --");
+        Logger.Log($"AF = {registers.AF:X4}\nBC = {registers.BC:X4}\nDE = {registers.DE:X4}\nHL = {registers.HL:X4}\nSP = {registers.SP:X4}\nPC = {registers.PC:X4}");
+        Logger.LogWithPrint($"Next opcode ${opcode:X4} ({instruction.Name}) with argument ${argument:X4}\n");
+
+
 
         if (false)
         {

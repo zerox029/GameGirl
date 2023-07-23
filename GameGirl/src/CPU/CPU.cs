@@ -62,8 +62,6 @@ namespace GameGirl
         byte instructionLength = instructionSet.GetInstructionLength(currentOpcode);
         ushort argument = GetArgumentForCurrentOpcode((byte)(instructionLength - 1));
 
-        if (isInDebugMode) Console.Write("0x{0:X}: ", registers.PC);
-
         try
         {
           registers.PC += instructionLength;
@@ -75,7 +73,7 @@ namespace GameGirl
         }
         catch (Exception exception)
         {
-          Console.Error.WriteLine(exception.Message);
+          Logger.LogWithError(exception.Message);
 
           return;
         }
