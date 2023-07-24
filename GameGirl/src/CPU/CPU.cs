@@ -73,7 +73,7 @@ namespace GameGirl
         }
         catch (Exception exception)
         {
-          Logger.LogWithError(exception.Message);
+          Logger.LogWithError($"Error when executing opcode 0x{currentOpcode:X2} at address 0x{registers.PC - instructionLength:X4}: {exception.Message}");
 
           return;
         }

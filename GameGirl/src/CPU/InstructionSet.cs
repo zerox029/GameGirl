@@ -177,6 +177,14 @@ namespace GameGirl
       instructions[0x9E] = new Instruction("SBC A [hl]", 0x9E, 1, 8, (value) => SBC(mmu.ReadByte(registers.HL)));
       instructions[0x9F] = new Instruction("SBC A a", 0x9F, 1, 4, (value) => SBC(registers.A));
 
+      instructions[0xA0] = new Instruction("AND B", 0xA0, 1, 4, (value) => AND(registers.B));
+      instructions[0xA1] = new Instruction("AND C", 0xA1, 1, 4, (value) => AND(registers.C));
+      instructions[0xA2] = new Instruction("AND D", 0xA2, 1, 4, (value) => AND(registers.D));
+      instructions[0xA3] = new Instruction("AND E", 0xA3, 1, 4, (value) => AND(registers.E));
+      instructions[0xA4] = new Instruction("AND H", 0xA4, 1, 4, (value) => AND(registers.H));
+      instructions[0xA5] = new Instruction("AND L", 0xA5, 1, 4, (value) => AND(registers.L));
+      instructions[0xA6] = new Instruction("AND [HL])", 0xA6, 1, 8, (value) => AND(mmu.ReadByte(registers.HL)));
+      instructions[0xA7] = new Instruction("AND A", 0xA7, 1, 4, (value) => AND(registers.A));
       instructions[0xA8] = new Instruction("XOR B", 0xA8, 1, 4, (value) => XOR(registers.B));
       instructions[0xA9] = new Instruction("XOR C", 0xA9, 1, 4, (value) => XOR(registers.C));
       instructions[0xAA] = new Instruction("XOR D", 0xAA, 1, 4, (value) => XOR(registers.D));
@@ -186,6 +194,14 @@ namespace GameGirl
       instructions[0xAE] = new Instruction("XOR [hl]", 0xAE, 1, 8, (value) => XOR(mmu.ReadByte(registers.HL)));
       instructions[0xAF] = new Instruction("XOR A", 0xAF, 1, 4, (value) => XOR(registers.A));
 
+      instructions[0xB0] = new Instruction("OR B", 0xB0, 1, 4, (value) => OR(registers.B));
+      instructions[0xB1] = new Instruction("OR C", 0xB1, 1, 4, (value) => OR(registers.C));
+      instructions[0xB2] = new Instruction("OR D", 0xB2, 1, 4, (value) => OR(registers.D));
+      instructions[0xB3] = new Instruction("OR E", 0xB3, 1, 4, (value) => OR(registers.E));
+      instructions[0xB4] = new Instruction("OR H", 0xB4, 1, 4, (value) => OR(registers.H));
+      instructions[0xB5] = new Instruction("OR L", 0xB5, 1, 4, (value) => OR(registers.L));
+      instructions[0xB6] = new Instruction("OR [HL])", 0xB6, 1, 8, (value) => OR(mmu.ReadByte(registers.HL)));
+      instructions[0xB7] = new Instruction("OR A", 0xB7, 1, 4, (value) => OR(registers.A));
       instructions[0xB8] = new Instruction("CP B", 0xB8, 1, 4, (value) => CP(registers.B));
       instructions[0xB9] = new Instruction("CP C", 0xB9, 1, 4, (value) => CP(registers.C));
       instructions[0xBA] = new Instruction("CP D", 0xBA, 1, 4, (value) => CP(registers.D));
@@ -198,11 +214,14 @@ namespace GameGirl
       instructions[0xC2] = new Instruction("JP NZ, a16", 0xC2, 3, 12, (value) => JP(value, () => !registers.GetFlag(Flag.ZERO)));
       instructions[0xC3] = new Instruction("JP, a16", 0xC3, 3, 12, (value) => JP(value));
       instructions[0xCA] = new Instruction("JP NZ, a16", 0xCA, 3, 12, (value) => JP(value, () => registers.GetFlag(Flag.ZERO)));
+      instructions[0xCD] = new Instruction("CALL a16", 0xCD, 3, 12, (value) => CALL(value));
 
       instructions[0xD2] = new Instruction("JP NC, a16", 0xD2, 3, 12, (value) => JP(value, () => !registers.GetFlag(Flag.CARRY)));
       instructions[0xDA] = new Instruction("JP NC, a16", 0xDA, 3, 12, (value) => JP(value, () => registers.GetFlag(Flag.CARRY)));
 
       instructions[0xE0] = new Instruction("LD [a8], A", 0xE0, 2, 12, (value) => mmu.WriteByte((ushort)((ushort)0xFF00 + (ushort)value), registers.A));
+      instructions[0xE2] = new Instruction("LD [C], A", 0xE2, 1, 8, (value) => mmu.WriteByte((ushort)(registers.C + 0xFF00), registers.A));
+      instructions[0xEA] = new Instruction("LD [a16], A", 0xEA, 3, 16, (value) => mmu.WriteByte(value, registers.A));
 
       instructions[0xF0] = new Instruction("LD A, [a8]", 0xF0, 2, 12, (value) => registers.A = mmu.ReadByte((ushort)(0xFF00 + value)));
       instructions[0xF3] = new Instruction("DI", 0xF3, 1, 4, (value) => DI());
@@ -249,9 +268,7 @@ namespace GameGirl
         Logger.Log("-- Current register status --");
         Logger.Log($"AF = {registers.AF:X4}\nBC = {registers.BC:X4}\nDE = {registers.DE:X4}\nHL = {registers.HL:X4}\nSP = {registers.SP:X4}\nPC = {registers.PC - instruction.Length:X4}");
         Logger.Log($"Z = {registers.GetFlag(Flag.ZERO)}\nN = {registers.GetFlag(Flag.SUBSTRACTION)}\nH = {registers.GetFlag(Flag.HALF_CARRY)}\nC = {registers.GetFlag(Flag.CARRY)}");
-        Logger.LogWithPrint($"Next opcode ${opcode:X4} ({instruction.Name}) with argument ${argument:X4}\n");
-
-
+        Logger.Log($"Next opcode ${opcode:X4} ({instruction.Name}) with argument ${argument:X4}\n");
 
         if (false)
         {
@@ -413,6 +430,37 @@ namespace GameGirl
     }
 
 
+    /// Bitwise AND between the value in r8 and A.
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: Z, H
+    private void AND(byte value)
+    {
+      byte result = (byte)(registers.A & value);
+      registers.A = result;
+
+      registers.ClearAllFlags();
+      registers.SetFlag(Flag.HALF_CARRY);
+      if (result == 0)
+      {
+        registers.SetFlag(Flag.ZERO);
+      }
+    }
+
+    /// Store into A the bitwise OR of the value in r8 and A.
+    /// Cycles: 1, Bytes: 1
+    /// Affected flags: Z
+    private void OR(byte value)
+    {
+      byte result = (byte)(registers.A | value);
+      registers.A = result;
+
+      registers.ClearAllFlags();
+      if (result == 0)
+      {
+        registers.SetFlag(Flag.ZERO);
+      }
+    }
+
     /// Bitwise XOR between the value in r8 and A
     /// Cycles: 1, Bytes: 1
     /// Affected flags: Z
@@ -468,6 +516,18 @@ namespace GameGirl
       {
         JR(value);
       }
+    }
+
+    private void CALL(ushort address)
+    {
+      byte msb = (byte)((registers.PC & 0xFF00) >> 4);
+      byte lsb = (byte)(registers.PC & 0x00FF);
+      mmu.WriteByte((ushort)(registers.SP - 1), lsb);
+      mmu.WriteByte((ushort)(registers.SP - 2), msb);
+
+      registers.SP -= 2;
+
+      registers.PC = address;
     }
 
     #endregion

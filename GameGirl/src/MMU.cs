@@ -89,7 +89,7 @@ namespace GameGirl
       }
       else if (address >= 0xFEA0 && address <= 0xFEFF)
       {
-        throw new InvalidAddressException(address);
+        //throw new InvalidAddressException(address);
       }
       else if (address >= 0xFF00 && address <= 0xFF7F)
       {
