@@ -174,5 +174,15 @@ namespace GameGirl
       byte copyValue = ReadByte(from);
       WriteByte(to, copyValue);
     }
+
+    public void PushToStack(ushort value, Registers registers)
+    {
+      byte msb = (byte)((value & 0xFF00) >> 4);
+      byte lsb = (byte)(value & 0x00FF);
+      WriteByte((ushort)(registers.SP - 1), lsb);
+      WriteByte((ushort)(registers.SP - 2), msb);
+
+      registers.SP -= 2;
+    }
   }
 }

@@ -520,12 +520,7 @@ namespace GameGirl
 
     private void CALL(ushort address)
     {
-      byte msb = (byte)((registers.PC & 0xFF00) >> 4);
-      byte lsb = (byte)(registers.PC & 0x00FF);
-      mmu.WriteByte((ushort)(registers.SP - 1), lsb);
-      mmu.WriteByte((ushort)(registers.SP - 2), msb);
-
-      registers.SP -= 2;
+      mmu.PushToStack(address, registers);
 
       registers.PC = address;
     }

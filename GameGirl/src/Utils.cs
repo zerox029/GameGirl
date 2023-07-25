@@ -2,6 +2,7 @@ namespace GameGirl
 {
   public static class Utils
   {
+    //Memory dimensions
     public static ushort MEMORY_BANK_SIZE { get { return 0xFFFF; } }
     public static ushort ROM_BANK_SIZE { get { return 0x8000; } }
     public static ushort VIDEO_RAM_SIZE { get { return 0x2000; } }
@@ -21,5 +22,9 @@ namespace GameGirl
     public static int CLOCK_FREQUENCY_STATE_10 { get { return 65536; } }
     public static int CLOCK_FREQUENCY_STATE_11 { get { return 16384; } }
     public static int CLOCK_SPEED { get { return 4194304; } }
+
+    //Interrupt values
+    public static ushort INTERRUPT_REQUEST_REGISTER_ADDRESS { get { return 0xFF0F; } }
+    public static ushort INTERRUPT_ENABLED_REGISTER_ADDRESS { get { return 0xFFFF; } }
   }
 }

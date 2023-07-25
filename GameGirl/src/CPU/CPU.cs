@@ -11,14 +11,17 @@ namespace GameGirl
 
     Timer timer;
 
-    private bool isInDebugMode = true;
+    InterruptHandler interruptHandler;
+
+    private bool isInDebugMode = false;
 
     public CPU(MMU mmu)
     {
+      this.mmu = mmu;
       this.registers = new Registers();
       this.instructionSet = new InstructionSet(registers, mmu);
-      this.mmu = mmu;
       this.timer = new Timer(mmu);
+      this.interruptHandler = new InterruptHandler(registers, mmu);
     }
 
     //Setting default start up register values programmatically,
@@ -58,25 +61,31 @@ namespace GameGirl
       int totalCycles = 0;
       while (true)
       {
-        byte currentOpcode = mmu.ReadByte(registers.PC);
-        byte instructionLength = instructionSet.GetInstructionLength(currentOpcode);
-        ushort argument = GetArgumentForCurrentOpcode((byte)(instructionLength - 1));
+        int executedCycles = RunNextOpcode();
+        totalCycles += executedCycles;
+        timer.Update(executedCycles);
 
-        try
-        {
-          registers.PC += instructionLength;
+        interruptHandler.CheckInterrupts();
+      }
+    }
 
-          byte executedCycles = instructionSet.RunInstruction(currentOpcode, argument, isInDebugMode);
-          totalCycles += executedCycles;
+    private int RunNextOpcode()
+    {
+      byte currentOpcode = mmu.ReadByte(registers.PC);
+      byte instructionLength = instructionSet.GetInstructionLength(currentOpcode);
+      ushort argument = GetArgumentForCurrentOpcode((byte)(instructionLength - 1));
 
-          timer.Update(executedCycles);
-        }
-        catch (Exception exception)
-        {
-          Logger.LogWithError($"Error when executing opcode 0x{currentOpcode:X2} at address 0x{registers.PC - instructionLength:X4}: {exception.Message}");
+      try
+      {
+        registers.PC += instructionLength;
 
-          return;
-        }
+        return instructionSet.RunInstruction(currentOpcode, argument, isInDebugMode);
+      }
+      catch (Exception exception)
+      {
+        Logger.LogWithError($"Error when executing opcode 0x{currentOpcode:X2} at address 0x{registers.PC - instructionLength:X4}: {exception.Message}");
+
+        return 0;
       }
     }
 
