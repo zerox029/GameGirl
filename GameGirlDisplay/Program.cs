@@ -1,3 +1,3 @@
 ﻿
-using var game = new GameGirlDisplay.Game1();
+using var game = new GameGirlDisplay.LCD();
 game.Run();
