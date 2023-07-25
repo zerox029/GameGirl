@@ -109,6 +109,14 @@ namespace GameGirl
       }
     }
 
+    public void BatchWriteBytes((ushort address, byte value)[] writeOperations)
+    {
+      foreach ((ushort address, byte value) in writeOperations)
+      {
+        WriteByte(address, value);
+      }
+    }
+
     public byte ReadByte(ushort address)
     {
       if (address >= 0x0 && address <= 0x7FFF)
