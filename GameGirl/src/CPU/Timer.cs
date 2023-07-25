@@ -8,7 +8,7 @@ namespace GameGirl
 
     public Timer(MMU mmu)
     {
-      timerCounter = Utils.CLOCK_SPEED / Utils.CLOCK_FREQUENCY_STATE_00;
+      timerCounter = ValueUtils.CLOCK_SPEED / ValueUtils.CLOCK_FREQUENCY_STATE_00;
       this.mmu = mmu;
     }
 
@@ -24,14 +24,14 @@ namespace GameGirl
         {
           SetClockFrequency();
 
-          if (mmu.ReadByte(Utils.TIMER_ADDRESS) == 255)
+          if (mmu.ReadByte(ValueUtils.TIMER_ADDRESS) == 255)
           {
-            mmu.WriteByte(Utils.TIMER_ADDRESS, mmu.ReadByte(Utils.TIMER_MODULATOR_ADDRESS));
+            mmu.WriteByte(ValueUtils.TIMER_ADDRESS, mmu.ReadByte(ValueUtils.TIMER_MODULATOR_ADDRESS));
             //Request Timer Interupt
           }
           else
           {
-            mmu.WriteByte(Utils.TIMER_ADDRESS, (byte)(mmu.ReadByte(Utils.TIMER_ADDRESS) + 1));
+            mmu.WriteByte(ValueUtils.TIMER_ADDRESS, (byte)(mmu.ReadByte(ValueUtils.TIMER_ADDRESS) + 1));
           }
         }
       }
@@ -43,18 +43,18 @@ namespace GameGirl
       if (dividerCounter >= 255)
       {
         dividerCounter = 0;
-        mmu.IncrementByte(Utils.DIVIDER_REGISTER_ADDRESS, 1);
+        mmu.IncrementByte(ValueUtils.DIVIDER_REGISTER_ADDRESS, 1);
       }
     }
 
     private bool IsClockEnabled()
     {
-      return (mmu.ReadByte(Utils.TIMER_CONTROLLER_ADDRESS) & 0b001) == 1;
+      return (mmu.ReadByte(ValueUtils.TIMER_CONTROLLER_ADDRESS) & 0b001) == 1;
     }
 
     private byte getClockFrequency()
     {
-      return (byte)(mmu.ReadByte(Utils.TIMER_CONTROLLER_ADDRESS) & 0x3);
+      return (byte)(mmu.ReadByte(ValueUtils.TIMER_CONTROLLER_ADDRESS) & 0x3);
     }
 
     private void SetClockFrequency()
@@ -62,16 +62,16 @@ namespace GameGirl
       switch (getClockFrequency())
       {
         case 0x00:
-          timerCounter = Utils.CLOCK_SPEED / Utils.CLOCK_FREQUENCY_STATE_00;
+          timerCounter = ValueUtils.CLOCK_SPEED / ValueUtils.CLOCK_FREQUENCY_STATE_00;
           break;
         case 0x01:
-          timerCounter = Utils.CLOCK_SPEED / Utils.CLOCK_FREQUENCY_STATE_01;
+          timerCounter = ValueUtils.CLOCK_SPEED / ValueUtils.CLOCK_FREQUENCY_STATE_01;
           break;
         case 0x10:
-          timerCounter = Utils.CLOCK_SPEED / Utils.CLOCK_FREQUENCY_STATE_10;
+          timerCounter = ValueUtils.CLOCK_SPEED / ValueUtils.CLOCK_FREQUENCY_STATE_10;
           break;
         case 0x11:
-          timerCounter = Utils.CLOCK_SPEED / Utils.CLOCK_FREQUENCY_STATE_11;
+          timerCounter = ValueUtils.CLOCK_SPEED / ValueUtils.CLOCK_FREQUENCY_STATE_11;
           break;
       }
     }

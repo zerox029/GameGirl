@@ -1,5 +1,5 @@
 using Exceptions;
-using static GameGirl.Utils;
+using static GameGirl.ValueUtils;
 namespace GameGirl
 {
   /*

@@ -26,16 +26,16 @@ namespace GameGirl
 
     public void RequestInterrupt(Interrupt interruptType)
     {
-      byte interruptRequestRegister = mmu.ReadByte(Utils.INTERRUPT_REQUEST_REGISTER_ADDRESS);
-      mmu.WriteByte(Utils.INTERRUPT_REQUEST_REGISTER_ADDRESS, (byte)(interruptRequestRegister | (byte)interruptType));
+      byte interruptRequestRegister = mmu.ReadByte(ValueUtils.INTERRUPT_REQUEST_REGISTER_ADDRESS);
+      mmu.WriteByte(ValueUtils.INTERRUPT_REQUEST_REGISTER_ADDRESS, (byte)(interruptRequestRegister | (byte)interruptType));
     }
 
     public void CheckInterrupts()
     {
       if (InterrupMasterEnable)
       {
-        byte interruptRequestRegister = mmu.ReadByte(Utils.INTERRUPT_REQUEST_REGISTER_ADDRESS);
-        byte interruptEnabledRegister = mmu.ReadByte(Utils.INTERRUPT_ENABLED_REGISTER_ADDRESS);
+        byte interruptRequestRegister = mmu.ReadByte(ValueUtils.INTERRUPT_REQUEST_REGISTER_ADDRESS);
+        byte interruptEnabledRegister = mmu.ReadByte(ValueUtils.INTERRUPT_ENABLED_REGISTER_ADDRESS);
 
         if (interruptEnabledRegister > 0)
         {
@@ -53,9 +53,9 @@ namespace GameGirl
     private void DoInterrupt(Interrupt interrupt)
     {
       InterrupMasterEnable = false;
-      byte interruptRequestRegister = mmu.ReadByte(Utils.INTERRUPT_REQUEST_REGISTER_ADDRESS);
+      byte interruptRequestRegister = mmu.ReadByte(ValueUtils.INTERRUPT_REQUEST_REGISTER_ADDRESS);
       interruptRequestRegister = (byte)BitUtils.ResetBit(interruptRequestRegister, (int)interrupt);
-      mmu.WriteByte(Utils.INTERRUPT_REQUEST_REGISTER_ADDRESS, interruptRequestRegister);
+      mmu.WriteByte(ValueUtils.INTERRUPT_REQUEST_REGISTER_ADDRESS, interruptRequestRegister);
 
       mmu.PushToStack(registers.PC, registers);
 

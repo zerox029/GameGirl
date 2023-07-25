@@ -1,6 +1,6 @@
 namespace GameGirl
 {
-  public static class Utils
+  public static class ValueUtils
   {
     //Memory dimensions
     public static ushort MEMORY_BANK_SIZE { get { return 0xFFFF; } }
